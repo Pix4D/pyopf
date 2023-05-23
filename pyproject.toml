@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyopf"
+version = "1.0.0"
+description = "Python library for I/O and manipulation of projects under the Open Photogrammetry Format (OPF)"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24.1", "pygltflib>=1.15.3", "shapely>=2.0.1", "argparse>=1.4.0", "python-dateutil>=2.8.2"]
+readme = "README.md"
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: OS Independent",
+]
+keywords = ["photogrammetry", "OPF"]
+
+[project.urls]
+Homepage = "https://pix4d.github.io/opf-spec/specification/project.html"
+
+[project.optional-dependencies]
+tests = [
+    "simplejson>=18.3"
+]
+
+[project.scripts]
+opf_crop = "opf_tools.crop.cropper:main"
+opf_merge = "opf_tools.merge.merger:main"
+opf_undistort = "opf_tools.undistort.undistorter:main"
+
+[tool.hatch.build]
+only_packages = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyopf", "src/opf_tools"]
+
+[tool.pytest.ini_options]
+minversion = 6.0
+addopts = ["--import-mode=importlib"]
+testpaths = ["tests"]
+norecursedirs = ["spec"]
+pythonpath = ["src", "tests"]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.poetry]
+name = "pyopf"
+version = "1.0.0"
+description = "Python library for I/O and manipulation of projects under the Open Photogrammetry Format (OPF)"
+authors = ["Pix4D"]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+numpy = "*"
+pygltflib = "*"
+shapely = "*"
+python-dateutil = "*"
+simplejson = "*"
+pillow = "^9.5.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pre-commit = "*"
