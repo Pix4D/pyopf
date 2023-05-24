@@ -31,7 +31,6 @@ tests = [
 [project.scripts]
 opf_crop = "opf_tools.crop.cropper:main"
 opf_merge = "opf_tools.merge.merger:main"
-opf_convert = "opf_tools.convert.converter:main"
 opf_undistort = "opf_tools.undistort.undistorter:main"
 
 [tool.hatch.build]
