@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyopf"
+version = "0.0.1"
+description = "Python library for OPF I/O, manipulation and conversion"
+requires-python = ">=3.10"
+dependencies=["numpy>=1.24.1", "pygltflib>=1.15.3", "shapely>=2.0.1", "argparse>=1.4.0", "python-dateutil>=2.8.2"]
+
+[project.optional-dependencies]
+tests = [
+    "simplejson>=18.3"
+]
+
+[project.scripts]
+opf_crop = "opf_tools.crop.cropper:main"
+opf_merge = "opf_tools.merge.merger:main"
+opf_convert = "opf_tools.convert.converter:main"
+opf_undistort = "opf_tools.undistort.undistorter:main"
+
+[tool.hatch.build]
+only_packages = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyopf", "src/opf_tools"]
+
+[tool.pytest.ini_options]
+minversion = 6.0
+addopts = ["--import-mode=importlib"]
+testpaths = ["tests"]
+norecursedirs = ["spec"]
+pythonpath = ["src", "tests"]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.poetry]
+name = "pyopf"
+version = "0.0.1"
+description = "Python package for I/O of the OPF format as well as tools for manipulating OPF projects"
+authors = ["Pix4D"]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+numpy = "*"
+pygltflib = "*"
+shapely = "*"
+python-dateutil = "*"
+simplejson = "*"
+pillow = "^9.5.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pre-commit = "*"
