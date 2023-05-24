@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyopf"
-version = "0.0.1"
+version = "1.0.0"
 description = "Python library for I/O and manipulation of projects under the Open Photogrammetry Format (OPF)"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24.1", "pygltflib>=1.15.3", "shapely>=2.0.1", "argparse>=1.4.0", "python-dateutil>=2.8.2"]
@@ -52,8 +52,8 @@ include_trailing_comma = true
 
 [tool.poetry]
 name = "pyopf"
-version = "0.0.1"
-description = "Python package for I/O of the OPF format as well as tools for manipulating OPF projects"
+version = "1.0.0"
+description = "Python library for I/O and manipulation of projects under the Open Photogrammetry Format (OPF)"
 authors = ["Pix4D"]
 
 [tool.poetry.dependencies]
