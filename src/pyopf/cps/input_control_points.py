@@ -4,7 +4,7 @@ import numpy as np
 
 from ..crs import Geolocation
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..uid64 import Uid64
 from ..util import (
@@ -145,7 +145,7 @@ class Mtp(OpfObject):
         return result
 
 
-class InputControlPoints(BaseItem):
+class InputControlPoints(CoreItem):
     """Definition of the input control points, which are the control points in their original CRS"""
 
     gcps: List[Gcp]
@@ -168,7 +168,7 @@ class InputControlPoints(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "InputControlPoints":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
         gcps = from_list(Gcp.from_dict, obj.get("gcps"))
         mtps = from_list(Mtp.from_dict, obj.get("mtps"))
         result = InputControlPoints(gcps, mtps, base.format, base.version)

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..util import (
     from_bool,
@@ -60,7 +60,7 @@ class ProjectedGcp(OpfObject):
         return result
 
 
-class ProjectedControlPoints(BaseItem):
+class ProjectedControlPoints(CoreItem):
     """Definition of projected control points, which are the input control points with
     coordinates expressed in the processing CRS
     """
@@ -82,7 +82,7 @@ class ProjectedControlPoints(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "ProjectedControlPoints":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
         projected_gcps = from_list(ProjectedGcp.from_dict, obj.get("projected_gcps"))
         result = ProjectedControlPoints(projected_gcps, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)

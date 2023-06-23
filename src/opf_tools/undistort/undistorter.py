@@ -58,7 +58,7 @@ def save_image(image: np.ndarray, save_path: str) -> None:
     if not os.path.exists(os.path.dirname(save_path)):
         os.makedirs(os.path.dirname(save_path))
 
-    Image.fromarray(image, "RGB").save(save_path)
+    Image.fromarray(image, "RGB").save(save_path, quality=95)
 
 
 @functools.lru_cache
@@ -106,7 +106,7 @@ def compute_undistort_map(
     uv[0] = np.minimum(w - 1.5, uv[0])
     uv[1] = np.minimum(h - 1.5, uv[1])
     # fixing to integer, for each uv coordinate there will be 4 close pixels, we keep their coordinates in uv_mapping
-    uv_max = np.ceil(uv).astype(int)
+    uv_max = np.floor(uv + 1).astype(int)
     uv_max = np.maximum(0, uv_max)
     uv_max[0] = np.minimum(w - 1, uv_max[0])
     uv_max[1] = np.minimum(h - 1, uv_max[1])

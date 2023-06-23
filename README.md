@@ -137,6 +137,26 @@ The cropping tool can be called using
 
 `opf_crop project_to_crop.opf output_directory`
 
+#### Convert to NeRF
+
+This tool converts OPF projects to NeRF. NeRF consists of transforms file(s), which contain information about distortion, intrinsic and extrinsinc parameters of cameras. Usually it is split in `transforms_train.json` and `transforms_test.json` files, but can sometimes also have only the train one. The split can be controlled with the parameter `--train-frac`, for example `--train-frac 0.7` will randomly assign 70% of images for training, and the remaining 30% for testing. If this parameter is unspecified or set to 1.0, only the `transforms_train.json` will be generated. Sometimes an additional `transforms_val.json` is required. It is to evaluate from new points of view, but the generation of new point of views is not managed by this tool, so it can just be a copy of `transforms_test.json` renamed.
+
+The tool can also convert input images to other image formats using `--out-img-format`. An optional output directory can be given with `--out-img-dir`, otherwise the images are written to the same directory as the input ones. If `--out-img-dir` is used without `--out-img-format`, images will be copied. When copying or converting an image, the input directory layout is preserved.
+
+When `--out-img-dir` is used, the tree structure of where input images are stored will be copied to the output image directory. In other words, if all images are stored in the same directory, the folder specified by `--out-img-dir` will only contain the images. If images are stored in different folders/subfolders, the `--out-img-dir` folder will contain the same folders/subfolders starting from the first common folder.
+
+Only calibrated projects with perspective cameras are supported.
+
+##### Examples
+
+Different NeRFs require different parameter settings, by default all values are set to work with Instant-NeRF, so it can be used as:
+
+`opf2nerf project.opf --output-extension`
+
+DirectVoxGo only works with PNG image files, and contrary to Instant-NeRF it doesn't flip cameras orientation with respect to OPF. Thus it can be used as:
+
+`opf2nerf project.opf --out-img-format png --out-img-dir ./images --no-camera-flip`
+
 ## License and citation
 
 If you use this work in your research or projects, we kindly request that you cite it as follows:

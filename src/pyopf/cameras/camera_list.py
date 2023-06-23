@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..uid64 import Uid64
 from ..util import from_list, from_str, to_class
@@ -41,7 +41,7 @@ class CameraData(OpfObject):
         return result
 
 
-class CameraList(BaseItem):
+class CameraList(CoreItem):
     """List of primitive camera data files"""
 
     cameras: List[CameraData]
@@ -60,7 +60,7 @@ class CameraList(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "CameraList":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
         cameras = from_list(CameraData.from_dict, obj.get("cameras"))
         result = CameraList(cameras, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)

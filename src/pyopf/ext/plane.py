@@ -2,8 +2,7 @@ from typing import Any, List, Optional
 
 import numpy as np
 
-from ..formats import ExtensionFormat
-from ..items import ExtensionItem
+from ..types import OpfObject
 from ..util import (
     IntType,
     from_int,
@@ -13,13 +12,9 @@ from ..util import (
     to_float,
     vector_from_list,
 )
-from ..versions import VersionInfo
-
-format = ExtensionFormat("application/ext-pix4d-planes+json")
-version = VersionInfo(1, 0, "draft1")
 
 
-class Plane(ExtensionItem):
+class Plane(OpfObject):
     """List of inner boundaries."""
 
     inner_boundaries: Optional[List[List[IntType]]]
@@ -37,7 +32,6 @@ class Plane(ExtensionItem):
         outer_boundary: List[IntType],
         inner_boundaries: Optional[List[List[IntType]]] = None,
     ) -> None:
-        super(Plane, self).__init__(format=format, version=version)
         self.vertices3d = vertices3d
         self.normal_vector = normal_vector
         self.outer_boundary = outer_boundary
