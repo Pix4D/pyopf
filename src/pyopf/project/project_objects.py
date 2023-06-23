@@ -17,7 +17,7 @@ from ..cps import (
 )
 from ..crs import SceneReferenceFrame
 from ..formats import ExtensionFormat
-from ..items import BaseItem, ExtensionItem
+from ..items import CoreItem, ExtensionItem
 from ..pointcloud.pcl import GlTFPointCloud
 from .metadata import ProjectMetadata
 

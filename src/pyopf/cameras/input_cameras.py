@@ -8,7 +8,7 @@ import numpy as np
 from ..crs import Geolocation
 from ..ext.pix4d_input_depth_map import Pix4dInputDepthMap
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..uid64 import Uid64
 from ..util import (
@@ -530,7 +530,7 @@ class Sensor(OpfObject):
         return result
 
 
-class InputCameras(BaseItem):
+class InputCameras(CoreItem):
     """Definition of the input cameras, i.e. the data as provided by the user and camera
     database.
     """
@@ -554,7 +554,7 @@ class InputCameras(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "InputCameras":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
 
         captures = from_list(Capture.from_dict, obj.get("captures"))
         sensors = from_list(Sensor.from_dict, obj.get("sensors"))

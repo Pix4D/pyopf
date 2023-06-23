@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..uid64 import Uid64
 from ..util import (
@@ -170,7 +170,7 @@ class CalibratedSensor(OpfObject):
         return result
 
 
-class CalibratedCameras(BaseItem):
+class CalibratedCameras(CoreItem):
     """Definition of Calibrated Camera Parameters"""
 
     """Calibrated camera parameters."""
@@ -192,7 +192,7 @@ class CalibratedCameras(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "CalibratedCameras":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
         cameras = from_list(CalibratedCamera.from_dict, obj.get("cameras"))
         sensors = from_list(CalibratedSensor.from_dict, obj.get("sensors"))
         result = CalibratedCameras(cameras, sensors, base.format, base.version)

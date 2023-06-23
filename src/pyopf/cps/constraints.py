@@ -3,7 +3,7 @@ from typing import Any, List
 import numpy as np
 
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..util import (
     from_float,
@@ -120,7 +120,7 @@ class ScaleConstraint(OpfObject):
         return result
 
 
-class Constraints(BaseItem):
+class Constraints(CoreItem):
     """Scale and orientation constraints"""
 
     orientation_constraints: List[OrientationConstraint]
@@ -143,7 +143,7 @@ class Constraints(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "Constraints":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
 
         orientation_constraints = from_list(
             OrientationConstraint.from_dict, obj.get("orientation_constraints")

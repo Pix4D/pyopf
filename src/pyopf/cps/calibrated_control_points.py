@@ -3,7 +3,7 @@ from typing import Any, List
 import numpy as np
 
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..util import from_list, from_str, to_class, to_float, vector_from_list
 from ..versions import FormatVersion, format_and_version_to_type
@@ -37,7 +37,7 @@ class CalibratedControlPoint(OpfObject):
         return result
 
 
-class CalibratedControlPoints(BaseItem):
+class CalibratedControlPoints(CoreItem):
     """Definition of calibrated control points, which are the optimised control points with
     coordinates expressed in the processing CRS.
     """
@@ -59,7 +59,7 @@ class CalibratedControlPoints(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "CalibratedControlPoints":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
         points = from_list(CalibratedControlPoint.from_dict, obj.get("points"))
         result = CalibratedControlPoints(points, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)

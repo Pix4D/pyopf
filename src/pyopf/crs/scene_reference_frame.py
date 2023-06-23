@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..util import from_bool, from_list, to_class, to_float, vector_from_list
 from ..versions import FormatVersion, format_and_version_to_type
@@ -50,7 +50,7 @@ class BaseToTranslatedCanonicalCrsTransform(OpfObject):
         return result
 
 
-class SceneReferenceFrame(BaseItem):
+class SceneReferenceFrame(CoreItem):
     """An object that specifies a base Cartesian CRS and the transformation parameters to a
     translated canonical form suitable for processing and visualization.
     """
@@ -73,7 +73,7 @@ class SceneReferenceFrame(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "SceneReferenceFrame":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
         base_to_canonical = BaseToTranslatedCanonicalCrsTransform.from_dict(
             obj.get("base_to_canonical")
         )

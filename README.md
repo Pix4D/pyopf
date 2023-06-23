@@ -145,9 +145,10 @@ The tool can also convert input images to other image formats using `--out-img-f
 
 When `--out-img-dir` is used, the tree structure of where input images are stored will be copied to the output image directory. In other words, if all images are stored in the same directory, the folder specified by `--out-img-dir` will only contain the images. If images are stored in different folders/subfolders, the `--out-img-dir` folder will contain the same folders/subfolders starting from the first common folder.
 
-Only calibrated projects with only perspective cameras are supported. Remote files are not supported.
+Only calibrated projects with perspective cameras are supported.
 
 ##### Examples
+
 Different NeRFs require different parameter settings, by default all values are set to work with Instant-NeRF, so it can be used as:
 
 `opf2nerf project.opf --output-extension`

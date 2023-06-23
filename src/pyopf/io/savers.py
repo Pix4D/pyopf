@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote, urlparse
 
-from ..items import BaseItem, ExtensionItem
+from ..items import CoreItem, ExtensionItem
 from ..pointcloud.pcl import GlTFPointCloud
 from ..project import (
     Calibration,
@@ -112,7 +112,7 @@ def _save_project_and_objects(
                 if attribute is not None:
                     save_function(name, attribute, base_path)
 
-    def save_object(prefix, obj: BaseItem | ExtensionItem, base_path):
+    def save_object(prefix, obj: CoreItem | ExtensionItem, base_path):
 
         resources = []
 

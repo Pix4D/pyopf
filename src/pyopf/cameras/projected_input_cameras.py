@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 import numpy as np
 
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..uid64 import Uid64
 from ..util import (
@@ -208,7 +208,7 @@ class ProjectedSensor(OpfObject):
         return result
 
 
-class ProjectedInputCameras(BaseItem):
+class ProjectedInputCameras(CoreItem):
     """Definition of the input cameras data in the processing CRS, which is a projected
     right-handed isometric CS.
     """
@@ -235,7 +235,7 @@ class ProjectedInputCameras(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "ProjectedInputCameras":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
 
         captures = from_list(ProjectedCapture.from_dict, obj.get("captures"))
         sensors = from_list(ProjectedSensor.from_dict, obj.get("sensors"))

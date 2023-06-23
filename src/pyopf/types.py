@@ -96,7 +96,9 @@ class OpfObject:
             result["extensions"] = extensions
         return result
 
-    def _extract_unknown_properties_and_extensions(self, obj: dict, ignore_keys=set()):
+    def _extract_unknown_properties_and_extensions(
+        self, obj: dict, ignore_keys=set(["format", "version"])
+    ):
         """This function is meant to be called from `from_dict` static methods to
         retrieve the extensions and store them in self.extensions and identify
         all unkonwn properties and store them in self.unkown_properties.

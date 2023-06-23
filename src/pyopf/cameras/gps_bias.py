@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from ..formats import CoreFormat
-from ..items import BaseItem
+from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
 from ..uid64 import Uid64
 from ..util import from_float, from_list, to_class, to_float, vector_from_list
@@ -49,7 +49,7 @@ class RigidTransformationWithScaling(OpfObject):
         return result
 
 
-class GpsBias(BaseItem):
+class GpsBias(CoreItem):
     """For projects processed with both camera GPS and GCPs, the GPS bias describes a transform
     from the (GCP-adjusted) camera output positions to the prior camera GPS positions. For an
     output camera point p, a camera GPS point p' is computed as p' = RigidTransformation(p).
@@ -71,7 +71,7 @@ class GpsBias(BaseItem):
 
     @staticmethod
     def from_dict(obj: Any) -> "GpsBias":
-        base = BaseItem.from_dict(obj)
+        base = CoreItem.from_dict(obj)
         transform = RigidTransformationWithScaling.from_dict(obj.get("transform"))
         result = GpsBias(transform, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
