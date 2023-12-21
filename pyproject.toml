@@ -65,7 +65,7 @@ pygltflib = "*"
 shapely = "*"
 python-dateutil = "*"
 simplejson = "*"
-pillow = "^9.5.0"
+pillow = ">=9.5,<11.0"
 tqdm = "^4.65.0"
 
 [tool.poetry.dev-dependencies]
