@@ -28,10 +28,10 @@ class Pix4DRegionOfInterest(ExtensionItem):
         self,
         plane: Plane,
         height: Optional[float],
-        format: ExtensionFormat = format,
+        pformat: ExtensionFormat = format,
         version: VersionInfo = version,
     ) -> None:
-        super(Pix4DRegionOfInterest, self).__init__(format=format, version=version)
+        super(Pix4DRegionOfInterest, self).__init__(format=pformat, version=version)
 
         assert self.format == format
         self.plane = plane
@@ -40,7 +40,7 @@ class Pix4DRegionOfInterest(ExtensionItem):
     @staticmethod
     def from_dict(obj: Any) -> "Pix4DRegionOfInterest":
         base = ExtensionItem.from_dict(obj)
-        plane = Plane.from_dict(obj.get("plane"))
+        plane = Plane.from_dict(obj["plane"])
         height = from_union([from_float, from_none], obj.get("height"))
         result = Pix4DRegionOfInterest(plane, height, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)

@@ -1,15 +1,23 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = [
+    "poetry-core>=1.0.0",
+]
+build-backend = "poetry.core.masonry.api"
 
-[project]
+[tool.poetry]
 name = "pyopf"
-version = "1.1.1"
+version = "1.2.0"
 description = "Python library for I/O and manipulation of projects under the Open Photogrammetry Format (OPF)"
-requires-python = ">=3.10"
-dependencies = ["numpy>=1.24.1", "pygltflib>=1.15.3", "shapely>=2.0.1", "argparse>=1.4.0", "python-dateutil>=2.8.2", "pillow>=9.5.0", "tqdm>=4.65.0"]
+authors = [
+    "Pix4D",
+]
+license = "Apache-2.0"
 readme = "README.md"
-license = { file = "LICENSE" }
+packages = [
+    { include = "pyopf", from = "src" },
+    { include = "opf_tools", from = "src" },
+]
+homepage = "https://pix4d.github.io/opf-spec/specification/project.html"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
@@ -18,45 +26,10 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Operating System :: OS Independent",
 ]
-keywords = ["photogrammetry", "OPF"]
-
-[project.urls]
-Homepage = "https://pix4d.github.io/opf-spec/specification/project.html"
-
-[project.optional-dependencies]
-tests = [
-    "simplejson>=18.3"
+keywords = [
+    "photogrammetry",
+    "OPF",
 ]
-
-[project.scripts]
-opf_crop = "opf_tools.crop.cropper:main"
-opf_merge = "opf_tools.merge.merger:main"
-opf_convert = "opf_tools.convert.converter:main"
-opf_undistort = "opf_tools.undistort.undistorter:main"
-opf2nerf = "opf_tools.opf2nerf.converter:main"
-
-[tool.hatch.build]
-only_packages = true
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/pyopf", "src/opf_tools"]
-
-[tool.pytest.ini_options]
-minversion = 6.0
-addopts = ["--import-mode=importlib"]
-testpaths = ["tests"]
-norecursedirs = ["spec"]
-pythonpath = ["src", "tests"]
-
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-
-[tool.poetry]
-name = "pyopf"
-version = "1.1.1"
-description = "Python library for I/O and manipulation of projects under the Open Photogrammetry Format (OPF)"
-authors = ["Pix4D"]
 
 [tool.poetry.dependencies]
 python = ">=3.10"
@@ -65,9 +38,16 @@ pygltflib = "*"
 shapely = "*"
 python-dateutil = "*"
 simplejson = "*"
-pillow = "^9.5.0"
+pillow = "~10"
 tqdm = "^4.65.0"
+laspy = "2.4.1"
+pyproj = "3.6.0"
+plyfile = "0.9"
 
-[tool.poetry.dev-dependencies]
-pytest = "*"
-pre-commit = "*"
+[tool.poetry.scripts]
+opf_crop = "opf_tools.crop.cropper:main"
+opf_undistort = "opf_tools.undistort.undistorter:main"
+opf2nerf = "opf_tools.opf2nerf.converter:main"
+opf2colmap = "opf_tools.opf2colmap.converter:main"
+opf2las = "opf_tools.opf2las.converter:main"
+opf2ply = "opf_tools.opf2ply.converter:main"

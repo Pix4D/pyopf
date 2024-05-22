@@ -43,9 +43,9 @@ class ProjectedGcp(OpfObject):
     def from_dict(obj: Any) -> "ProjectedGcp":
         assert isinstance(obj, dict)
 
-        coordinates = vector_from_list(obj.get("coordinates"), 3, 3)
-        sigmas = vector_from_list(obj.get("sigmas"), 3, 3)
-        id = from_str(obj.get("id"))
+        coordinates = vector_from_list(obj["coordinates"], 3, 3)
+        sigmas = vector_from_list(obj["sigmas"], 3, 3)
+        id = from_str(obj["id"])
 
         result = ProjectedGcp(id, coordinates, sigmas)
         result._extract_unknown_properties_and_extensions(obj)
@@ -83,7 +83,7 @@ class ProjectedControlPoints(CoreItem):
     @staticmethod
     def from_dict(obj: Any) -> "ProjectedControlPoints":
         base = CoreItem.from_dict(obj)
-        projected_gcps = from_list(ProjectedGcp.from_dict, obj.get("projected_gcps"))
+        projected_gcps = from_list(ProjectedGcp.from_dict, obj["projected_gcps"])
         result = ProjectedControlPoints(projected_gcps, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

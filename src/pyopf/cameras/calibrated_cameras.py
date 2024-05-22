@@ -59,13 +59,13 @@ class CalibratedCamera(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "CalibratedCamera":
         assert isinstance(obj, dict)
-        id = Uid64(int=int(obj.get("id")))
-        orientation_deg = vector_from_list(obj.get("orientation_deg"), 3, 3)
-        position = vector_from_list(obj.get("position"), 3, 3)
+        id = Uid64(int=int(obj["id"]))
+        orientation_deg = vector_from_list(obj["orientation_deg"], 3, 3)
+        position = vector_from_list(obj["position"], 3, 3)
         rolling_shutter = from_union(
             [lambda x: vector_from_list(x, 3, 3), from_none], obj.get("rolling_shutter")
         )
-        sensor_id = Uid64(int=int(obj.get("sensor_id")))
+        sensor_id = Uid64(int=int(obj["sensor_id"]))
         result = CalibratedCamera(
             id, sensor_id, orientation_deg, position, rolling_shutter
         )
@@ -107,8 +107,8 @@ class CalibratedRigRelatives(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "CalibratedRigRelatives":
         assert isinstance(obj, dict)
-        rotation_angles_deg = vector_from_list(obj.get("rotation_angles_deg"), 3, 3)
-        translation = vector_from_list(obj.get("translation"), 3, 3)
+        rotation_angles_deg = vector_from_list(obj["rotation_angles_deg"], 3, 3)
+        translation = vector_from_list(obj["translation"], 3, 3)
         result = CalibratedRigRelatives(rotation_angles_deg, translation)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -142,14 +142,14 @@ class CalibratedSensor(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "CalibratedSensor":
         assert isinstance(obj, dict)
-        id = Uid64(int=int(obj.get("id")))
+        id = Uid64(int=int(obj["id"]))
         internals = from_union(
             [
                 SphericalInternals.from_dict,
                 PerspectiveInternals.from_dict,
                 FisheyeInternals.from_dict,
             ],
-            obj.get("internals"),
+            obj["internals"],
         )
         rig_relatives = from_union(
             [CalibratedRigRelatives.from_dict, from_none], obj.get("rig_relatives")
@@ -182,19 +182,19 @@ class CalibratedCameras(CoreItem):
         self,
         cameras: List[CalibratedCamera],
         sensors: List[CalibratedSensor],
-        format: CoreFormat = CoreFormat.CALIBRATED_CAMERAS,
+        pformat: CoreFormat = CoreFormat.CALIBRATED_CAMERAS,
         version: VersionInfo = FormatVersion.CALIBRATED_CAMERAS,
     ) -> None:
-        super(CalibratedCameras, self).__init__(format=format, version=version)
-
+        super(CalibratedCameras, self).__init__(format=pformat, version=version)
+        assert self.format == CoreFormat.CALIBRATED_CAMERAS
         self.cameras = cameras
         self.sensors = sensors
 
     @staticmethod
     def from_dict(obj: Any) -> "CalibratedCameras":
         base = CoreItem.from_dict(obj)
-        cameras = from_list(CalibratedCamera.from_dict, obj.get("cameras"))
-        sensors = from_list(CalibratedSensor.from_dict, obj.get("sensors"))
+        cameras = from_list(CalibratedCamera.from_dict, obj["cameras"])
+        sensors = from_list(CalibratedSensor.from_dict, obj["sensors"])
         result = CalibratedCameras(cameras, sensors, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

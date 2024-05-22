@@ -45,8 +45,8 @@ class Generator:
     @staticmethod
     def from_dict(obj: Any) -> "Generator":
         assert isinstance(obj, dict)
-        name = from_str(obj.get("name"))
-        version = from_str(obj.get("version"))
+        name = from_str(obj["name"])
+        version = from_str(obj["version"])
         return Generator(name, version)
 
     def to_dict(self) -> dict:
@@ -78,8 +78,8 @@ class ProjectResource(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ProjectResource":
         assert isinstance(obj, dict)
-        format = from_union([from_format, format_from_str], obj.get("format"))
-        uri = from_str(obj.get("uri"))
+        format = from_union([from_format, format_from_str], obj["format"])
+        uri = from_str(obj["uri"])
         result = ProjectResource(format, uri)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -110,9 +110,9 @@ class ProjectSource(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ProjectSource":
         assert isinstance(obj, dict)
-        id = UUID(obj.get("id"))
+        id = UUID(obj["id"])
         type = from_union(
-            [from_project_item_type, project_item_type_from_str], obj.get("type")
+            [from_project_item_type, project_item_type_from_str], obj["type"]
         )
         result = ProjectSource(id, type)
         result._extract_unknown_properties_and_extensions(obj)
@@ -158,12 +158,12 @@ class ProjectItem(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ProjectItem":
         assert isinstance(obj, dict)
-        id = UUID(obj.get("id"))
+        id = UUID(obj["id"])
         name = from_union([from_str, from_none], obj.get("name"))
-        resources = from_list(ProjectResource.from_dict, obj.get("resources"))
-        sources = from_list(ProjectSource.from_dict, obj.get("sources"))
+        resources = from_list(ProjectResource.from_dict, obj["resources"])
+        sources = from_list(ProjectSource.from_dict, obj["sources"])
         type = from_union(
-            [from_project_item_type, project_item_type_from_str], obj.get("type")
+            [from_project_item_type, project_item_type_from_str], obj["type"]
         )
         labels = from_union(
             [lambda x: from_list(from_str, x), from_none], obj.get("labels")
@@ -237,14 +237,14 @@ class Project(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Project":
         assert isinstance(obj, dict)
-        description = from_str(obj.get("description"))
-        assert from_str(obj.get("format")) == CoreFormat.PROJECT
+        description = from_str(obj["description"])
+        assert from_str(obj["format"]) == CoreFormat.PROJECT
 
         generator = from_union([Generator.from_dict, from_none], obj.get("generator"))
-        id = UUID(obj.get("id"))
-        items = from_list(ProjectItem.from_dict, obj.get("items"))
-        name = from_str(obj.get("name"))
-        version = from_union([from_version_info, VersionInfo.parse], obj.get("version"))
+        id = UUID(obj["id"])
+        items = from_list(ProjectItem.from_dict, obj["items"])
+        name = from_str(obj["name"])
+        version = from_union([from_version_info, VersionInfo.parse], obj["version"])
         result = Project(
             id,
             name,

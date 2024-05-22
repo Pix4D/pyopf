@@ -74,8 +74,13 @@ def resolve(project: Project, supported_extensions=[]):
             calibration.metadata = Metadata.from_item(item)
 
             for resource in item.resources:
-
-                obj = io.load(resource, project.base_uri, item.resources)
+                try:
+                    obj = io.load(resource, project.base_uri, item.resources)
+                except io.UnsupportedVersion as e:
+                    print(
+                        f"{e.message}. The entire {calibration.metadata.name} will be ignored."
+                    )
+                    break
                 if obj is None:
                     continue
 
@@ -84,7 +89,7 @@ def resolve(project: Project, supported_extensions=[]):
                     # Only one GPS bias resource is acceptable
                     if calibration.gps_bias is not None:
                         raise RuntimeError(
-                            "A calibration cannnot contain multiple GPS bias resources"
+                            "A calibration cannot contain multiple GPS bias resources"
                         )
                     calibration.gps_bias = obj
                 else:
@@ -93,7 +98,12 @@ def resolve(project: Project, supported_extensions=[]):
             result.calibration_objs.append(calibration)
 
         elif len(item.resources) == 1 and (is_core_item or is_supported_extension):
-            obj = io.load(item.resources[0].uri, project.base_uri)
+            try:
+                obj = io.load(item.resources[0].uri, project.base_uri)
+            except io.UnsupportedVersion as e:
+                if is_core_item:
+                    raise
+                print(f"{e.message}. The item will be ignored.")
             obj.metadata = Metadata.from_item(item)
 
             if obj.format != item.resources[0].format:

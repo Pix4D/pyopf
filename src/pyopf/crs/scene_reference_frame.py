@@ -35,9 +35,9 @@ class BaseToTranslatedCanonicalCrsTransform(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "BaseToTranslatedCanonicalCrsTransform":
         assert isinstance(obj, dict)
-        scale = vector_from_list(obj.get("scale"), 3, 3)
-        shift = vector_from_list(obj.get("shift"), 3, 3)
-        swap_xy = from_bool(obj.get("swap_xy"))
+        scale = vector_from_list(obj["scale"], 3, 3)
+        shift = vector_from_list(obj["shift"], 3, 3)
+        swap_xy = from_bool(obj["swap_xy"])
         result = BaseToTranslatedCanonicalCrsTransform(scale, shift, swap_xy)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -48,6 +48,23 @@ class BaseToTranslatedCanonicalCrsTransform(OpfObject):
         result["shift"] = from_list(to_float, self.shift)
         result["swap_xy"] = from_bool(self.swap_xy)
         return result
+
+    @property
+    def transformation_matrix(self) -> np.ndarray:
+        scale_transf = np.eye(4)
+        for i in range(3):
+            scale_transf[i, i] = self.scale[i]
+
+        shift_transf = np.eye(4)
+        shift_transf[:3, 3] = self.shift
+
+        swap_transf = (
+            np.asarray([[0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+            if self.swap_xy
+            else np.eye(4)
+        )
+
+        return shift_transf @ swap_transf @ scale_transf
 
 
 class SceneReferenceFrame(CoreItem):
@@ -75,9 +92,9 @@ class SceneReferenceFrame(CoreItem):
     def from_dict(obj: Any) -> "SceneReferenceFrame":
         base = CoreItem.from_dict(obj)
         base_to_canonical = BaseToTranslatedCanonicalCrsTransform.from_dict(
-            obj.get("base_to_canonical")
+            obj["base_to_canonical"]
         )
-        crs = Crs.from_dict(obj.get("crs"))
+        crs = Crs.from_dict(obj["crs"])
         result = SceneReferenceFrame(base_to_canonical, crs, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

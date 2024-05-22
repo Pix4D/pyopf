@@ -1,7 +1,8 @@
+import math
 import os
 from dataclasses import fields
 from pathlib import Path
-from typing import Literal, Optional, Type
+from typing import Iterator, Literal, Optional, Type
 
 import numpy as np
 import pygltflib
@@ -173,9 +174,13 @@ class Matches:
     """Used by the OPF_mesh_primitive_matches extension"""
 
     camera_uids: list[Uid64]
+    """List with all cameras UIDs used in this set of matches."""
     camera_ids: np.memmap | np.ndarray
+    """Flat list of camera groups. Each groups is a sublist of indices in the camera_uids list."""
     point_index_ranges: PointIndexRanges
+    """Per point camera index ranges defining the group of cameras matched at that point."""
     image_points: Optional[ImagePoints]
+    """Additional optional information about the matches. The different groups are indexed as camera_ids."""
 
     def __init__(self):
         self.camera_uids = []
@@ -538,12 +543,17 @@ class GlTFPointCloud:
             if buffer_view_offset is None:
                 raise RuntimeError("BufferView is missing byteOffset")
 
+            if gl_to_numpy_shape(accessor.type) == 1:
+                shape = accessor.count
+            else:
+                shape = (accessor.count, gl_to_numpy_shape(accessor.type))
+
             new_accessor = np.memmap(
                 base_dir / buffer_uri,
                 mode=mode,
                 dtype=gl_to_numpy_type(accessor.componentType),
                 offset=buffer_view_offset,
-                shape=(accessor.count, gl_to_numpy_shape(accessor.type)),
+                shape=shape,
             )
             accessors.append(new_accessor)
 
@@ -590,6 +600,12 @@ class GlTFPointCloud:
         ]
 
         return pcl
+
+    def __enter__(self) -> "GlTFPointCloud":
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.nodes = []
 
     def __len__(self) -> int:
         """The number of nodes in the glTF Point Cloud"""
@@ -658,3 +674,46 @@ class GlTFPointCloud:
             return [buffer.filepath for buffer in buffers.values()]
         else:
             return [path for node in self.nodes for path in node.buffer_filepaths]
+
+    def chunk_iterator(
+        self, max_chunk_size: int = 10000, yield_indices: bool = True
+    ) -> Iterator[Node] | Iterator[tuple[Node, int, int]]:
+        """Access the pointcloud chunk by chunk. Yields node chunks (copied) for each node in the glTF.
+        This function does not yield matches for memory usage efficiency.
+
+        :param int max_chunk_size: The maximum number of points contained in each node chunk. (default 10'000)
+        :param yield_indices: If true, will yield a tuple containing the node chunk, and the start and end indices of the
+                              points in the chunk in relation to the total number of points in the glTF. (default True)
+        :rtype: Iterator[Node] | Iterator[tuple[Node, int, int]]
+        """
+        prev_nodes_len = 0  # Keep track of the points in the previous nodes to yield relevant indices.
+
+        for node in self.nodes:
+            for i in range(math.ceil(len(node) / max_chunk_size)):
+                start = i * max_chunk_size
+                end = start + len(node.position[start : start + max_chunk_size])
+
+                result = Node()
+                result.position = node.position[start:end].copy()
+
+                if node.color is not None:
+                    result.color = node.color[start:end].copy()
+
+                if node.normal is not None:
+                    result.normal = node.normal[start:end].copy()
+
+                result.matrix = node.matrix.copy()
+
+                if node.custom_attributes is not None:
+                    result.custom_attributes = {
+                        name: values[start:end]
+                        for name, values in node.custom_attributes.items()
+                    }
+
+                yield (
+                    result,
+                    start + prev_nodes_len,
+                    end + prev_nodes_len,
+                ) if yield_indices else result
+
+            prev_nodes_len += len(node)

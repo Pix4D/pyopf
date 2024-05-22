@@ -44,10 +44,12 @@ class Plane(OpfObject):
             [lambda x: from_list(lambda x: from_list(from_int, x), x), from_none],
             obj.get("inner_boundaries"),
         )
-        normal_vector = vector_from_list(obj.get("normal_vector"))
-        outer_boundary = from_list(from_int, obj.get("outer_boundary"))
-        vertices3d = from_list(lambda x: vector_from_list(x), obj.get("vertices3d"))
-        return Plane(vertices3d, normal_vector, outer_boundary, inner_boundaries)
+        normal_vector = vector_from_list(obj["normal_vector"], 3, 3)
+        outer_boundary = from_list(from_int, obj["outer_boundary"])
+        vertices3d = from_list(lambda x: vector_from_list(x, 3, 3), obj["vertices3d"])
+        result = Plane(vertices3d, normal_vector, outer_boundary, inner_boundaries)
+        result._extract_unknown_properties_and_extensions(obj)
+        return result
 
     def to_dict(self) -> dict:
         result: dict = {}

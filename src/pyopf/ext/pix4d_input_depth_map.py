@@ -29,20 +29,24 @@ class DepthMapConfidence(OpfPropertyExtObject):
     max: float
     """Minimum confidence value to consider a depth measurement valid."""
     min: float
+    """Hint on the minimum (inclusive) confidence value to consider a depth measurement reliable."""
+    threshold: float
 
-    def __init__(self, id: Uid64, max: float, min: float) -> None:
+    def __init__(self, id: Uid64, max: float, min: float, threshold: float) -> None:
         super(DepthMapConfidence, self).__init__()
         self.id = id
         self.max = max
         self.min = min
+        self.threshold = threshold
 
     @staticmethod
     def from_dict(obj: Any) -> "DepthMapConfidence":
         assert isinstance(obj, dict)
-        id = Uid64(int=obj.get("id"))
-        max = from_float(obj.get("max"))
-        min = from_float(obj.get("min"))
-        result = DepthMapConfidence(id, max, min)
+        id = Uid64(int=obj["id"])
+        max = from_float(obj["max"])
+        min = from_float(obj["min"])
+        threshold = from_float(obj["threshold"])
+        result = DepthMapConfidence(id, max, min, threshold)
         result._extract_unknown_properties_and_extensions(obj)
         return result
 
@@ -51,6 +55,7 @@ class DepthMapConfidence(OpfPropertyExtObject):
         result["id"] = self.id.int
         result["max"] = to_float(self.max)
         result["min"] = to_float(self.min)
+        result["threshold"] = to_float(self.threshold)
         return result
 
 
@@ -90,9 +95,9 @@ class Pix4dInputDepthMap(OpfPropertyExtObject):
             [DepthMapConfidence.from_dict, from_none], obj.get("confidence")
         )
 
-        id = Uid64(obj.get("id"))
+        id = Uid64(obj["id"])
         unit_to_meters = from_union([from_float, from_none], obj.get("unit_to_meters"))
-        version = from_union([from_version_info, VersionInfo.parse], obj.get("version"))
+        version = from_union([from_version_info, VersionInfo.parse], obj["version"])
         result = Pix4dInputDepthMap(id, unit_to_meters, confidence, version)
         result._extract_unknown_properties_and_extensions(obj)
 

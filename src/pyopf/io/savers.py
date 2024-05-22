@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote, urlparse
+from urllib.request import url2pathname
 
 from ..items import CoreItem, ExtensionItem
 from ..pointcloud.pcl import GlTFPointCloud
@@ -199,7 +200,7 @@ def save(obj: Any, uri: str | Path, **kwargs) -> list[ProjectResource]:
     """
 
     if not isinstance(uri, Path):
-        uri = Path(unquote(urlparse(uri).path)).absolute()
+        uri = Path(url2pathname(urlparse(uri).path)).absolute()
 
     for obj_type, saver in savers:
         if isinstance(obj, obj_type):

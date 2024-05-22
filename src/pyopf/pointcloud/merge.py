@@ -13,7 +13,7 @@ from .pcl import (
     opf_axis_rotation_matrix,
     opf_axis_rotation_matrix_inverse,
 )
-from .utils import merge_arrays
+from .utils import apply_affine_transform, merge_arrays
 
 
 def _check_property(objs: list[Any], prop: str):
@@ -31,15 +31,6 @@ def _check_property(objs: list[Any], prop: str):
         raise ValueError("Not all pointclouds share property: " + prop)
 
     return all(flags)
-
-
-def _apply_affine_transform(array: np.ndarray | np.memmap, matrix: np.ndarray) -> None:
-    """Applies in-place the affine transform represented by matrix to the points of array.
-    :raise ValueError: If array does not have the shape (,3) or if matrix does not have the shape (4,4)
-    """
-    upper_left_matrix = matrix[:3, :3]
-    translation = matrix[:3, 3]
-    array[:] = array @ upper_left_matrix.transpose() + translation
 
 
 def _merge_image_points(
@@ -208,7 +199,7 @@ def collapse(pointcloud: GlTFPointCloud, output_gltf_dir: Path) -> GlTFPointClou
         count = len(node.position)
         matrix = node.matrix if node.matrix is not None else np.eye(4)
         matrix = opf_axis_rotation_matrix_inverse @ matrix
-        _apply_affine_transform(position[offset : offset + count], matrix)
+        apply_affine_transform(position[offset : offset + count], matrix)
         offset += count
 
     pointcloud.nodes[0].position = position

@@ -1,11 +1,10 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
 from ..formats import CoreFormat
 from ..items import CoreItem
 from ..types import OpfObject, VersionInfo
-from ..uid64 import Uid64
 from ..util import from_float, from_list, to_class, to_float, vector_from_list
 from ..versions import FormatVersion, format_and_version_to_type
 
@@ -34,9 +33,9 @@ class RigidTransformationWithScaling(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "RigidTransformationWithScaling":
         assert isinstance(obj, dict)
-        rotation_deg = vector_from_list(obj.get("rotation_deg"), 3, 3)
-        scale = from_float(obj.get("scale"))
-        translation = vector_from_list(obj.get("translation"), 3, 3)
+        rotation_deg = vector_from_list(obj["rotation_deg"], 3, 3)
+        scale = from_float(obj["scale"])
+        translation = vector_from_list(obj["translation"], 3, 3)
         result = RigidTransformationWithScaling(rotation_deg, scale, translation)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -63,16 +62,17 @@ class GpsBias(CoreItem):
     def __init__(
         self,
         transform: RigidTransformationWithScaling,
-        format: CoreFormat = CoreFormat.GPS_BIAS,
+        pformat: CoreFormat = CoreFormat.GPS_BIAS,
         version: VersionInfo = FormatVersion.GPS_BIAS,
     ) -> None:
-        super(GpsBias, self).__init__(format=format, version=version)
+        super(GpsBias, self).__init__(format=pformat, version=version)
+        assert self.format == CoreFormat.GPS_BIAS
         self.transform = transform
 
     @staticmethod
     def from_dict(obj: Any) -> "GpsBias":
         base = CoreItem.from_dict(obj)
-        transform = RigidTransformationWithScaling.from_dict(obj.get("transform"))
+        transform = RigidTransformationWithScaling.from_dict(obj["transform"])
         result = GpsBias(transform, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

@@ -81,6 +81,17 @@ class VersionInfo:
 
         return cls(major, minor, prerelease)
 
+    def compatible_with(self, other):
+        if self.major != other.major or self.prerelease != other.prerelease:
+            return False
+        if self.major > 0:
+            if self.prerelease is not None and self.minor != other.minor:
+                return False
+        elif self.major == 0 and self.minor != other.minor:
+            return False
+
+        return True
+
     def __eq__(self, other):
         return self.to_tuple() == other.to_tuple()
 
