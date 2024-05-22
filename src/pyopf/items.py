@@ -7,7 +7,7 @@ from .formats import (
     format_to_str,
     from_format,
 )
-from .types import OpfObject, OpfPropertyExtObject
+from .types import OpfObject
 from .util import from_union, from_version_info
 from .VersionInfo import VersionInfo
 
@@ -40,8 +40,8 @@ class CoreItem(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "CoreItem":
         assert isinstance(obj, dict)
-        format = from_union([from_format, format_from_str], obj.get("format"))
-        version = from_union([from_version_info, VersionInfo.parse], obj.get("version"))
+        format = from_union([from_format, format_from_str], obj["format"])
+        version = from_union([from_version_info, VersionInfo.parse], obj["version"])
         return CoreItem(format, version)
 
 
@@ -73,6 +73,13 @@ class ExtensionItem(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ExtensionItem":
         assert isinstance(obj, dict)
-        format = from_union([from_format, format_from_str], obj.get("format"))
-        version = from_union([from_version_info, VersionInfo.parse], obj.get("version"))
+        format = from_union([from_format, format_from_str], obj["format"])
+        version = from_union([from_version_info, VersionInfo.parse], obj["version"])
         return ExtensionItem(format, version)
+
+    def _extract_unknown_properties_and_extensions(
+        self, obj: dict, ignore_keys=set()
+    ) -> None:
+        super(ExtensionItem, self)._extract_unknown_properties_and_extensions(
+            obj, ignore_keys={"format", "version"}.union(ignore_keys)
+        )

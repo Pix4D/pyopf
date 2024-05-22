@@ -44,9 +44,9 @@ class Geolocation(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Geolocation":
         assert isinstance(obj, dict)
-        coordinates = vector_from_list(obj.get("coordinates"), 3, 3)
-        crs = Crs.from_dict(obj.get("crs"))
-        sigmas = vector_from_list(obj.get("sigmas"), 3, 3)
+        coordinates = vector_from_list(obj["coordinates"], 3, 3)
+        crs = Crs.from_dict(obj["crs"])
+        sigmas = vector_from_list(obj["sigmas"], 3, 3)
         result = Geolocation(coordinates, crs, sigmas)
         result._extract_unknown_properties_and_extensions(obj)
         return result

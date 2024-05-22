@@ -64,6 +64,12 @@ class Uid64:
     def __deepcopy__(self, _memo):
         return self
 
+    def __getstate__(self):
+        return self.int
+
+    def __setstate__(self, int):
+        object.__setattr__(self, "int", int)
+
 
 def uid64():
     return Uid64(bytes=os.urandom(8))

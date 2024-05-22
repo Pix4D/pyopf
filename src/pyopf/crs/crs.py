@@ -1,14 +1,7 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
-from ..types import Extensions, OpfObject
-from ..util import (
-    from_float,
-    from_none,
-    from_str,
-    from_union,
-    to_class,
-    to_float,
-)
+from ..types import OpfObject
+from ..util import from_float, from_none, from_str, from_union, to_float
 
 
 class Crs(OpfObject):
@@ -38,7 +31,7 @@ class Crs(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Crs":
         assert isinstance(obj, dict)
-        definition = from_str(obj.get("definition"))
+        definition = from_str(obj["definition"])
         geoid_height = from_union([from_float, from_none], obj.get("geoid_height"))
         result = Crs(definition, geoid_height)
         result._extract_unknown_properties_and_extensions(obj)

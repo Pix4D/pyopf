@@ -4,10 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## 1.2.0
+
 ### Added
+
+- transformation_matrix property to BaseToTranslatedCanonicalCrsTransform
+- OPF pointcloud to COLMAP converter
+- OPF pointcloud to PLY converter
+- OPF pointcloud to LAS converter
+- Support for the Pix4D polygonal mesh extension
+- Support for the Pix4D input and calibrated ITPs extension
+
 ### Changed
+
+- Raise a KeyError exception if a required attribute is missing
+- Make pyopf.io.load accept paths as strings or os.PathLike objects
+- Fixed handling of pathlib.Path in pyopf.io.save
+- Move to poetry as package manager
+
 ### Removed
+
+- OPF projects merging tool
 
 ## 1.1.1
 

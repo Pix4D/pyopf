@@ -46,9 +46,9 @@ class Mark(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Mark":
         assert isinstance(obj, dict)
-        accuracy = from_float(obj.get("accuracy"))
-        camera_id = Uid64(int=int(obj.get("camera_id")))
-        position_px = vector_from_list(obj.get("position_px"), 2, 2)
+        accuracy = from_float(obj["accuracy"])
+        camera_id = Uid64(int=int(obj["camera_id"]))
+        position_px = vector_from_list(obj["position_px"], 2, 2)
         result = Mark(accuracy, camera_id, position_px)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -88,10 +88,10 @@ class Gcp(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Gcp":
         assert isinstance(obj, dict)
-        geolocation = Geolocation.from_dict(obj.get("geolocation"))
-        id = from_str(obj.get("id"))
-        is_checkpoint = from_bool(obj.get("is_checkpoint"))
-        marks = from_list(Mark.from_dict, obj.get("marks"))
+        geolocation = Geolocation.from_dict(obj["geolocation"])
+        id = from_str(obj["id"])
+        is_checkpoint = from_bool(obj["is_checkpoint"])
+        marks = from_list(Mark.from_dict, obj["marks"])
         result = Gcp(id, geolocation, is_checkpoint, marks)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -130,9 +130,9 @@ class Mtp(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Mtp":
         assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        is_checkpoint = from_bool(obj.get("is_checkpoint"))
-        marks = from_list(Mark.from_dict, obj.get("marks"))
+        id = from_str(obj["id"])
+        is_checkpoint = from_bool(obj["is_checkpoint"])
+        marks = from_list(Mark.from_dict, obj["marks"])
         result = Mtp(id, is_checkpoint, marks)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -169,8 +169,8 @@ class InputControlPoints(CoreItem):
     @staticmethod
     def from_dict(obj: Any) -> "InputControlPoints":
         base = CoreItem.from_dict(obj)
-        gcps = from_list(Gcp.from_dict, obj.get("gcps"))
-        mtps = from_list(Mtp.from_dict, obj.get("mtps"))
+        gcps = from_list(Gcp.from_dict, obj["gcps"])
+        mtps = from_list(Mtp.from_dict, obj["mtps"])
         result = InputControlPoints(gcps, mtps, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

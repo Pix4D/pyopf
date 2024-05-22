@@ -26,8 +26,8 @@ class RigRelativeRotation(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "RigRelativeRotation":
         assert isinstance(obj, dict)
-        angles_deg = vector_from_list(obj.get("angles_deg"), 3, 3)
-        sigmas_deg = vector_from_list(obj.get("sigmas_deg"), 3, 3)
+        angles_deg = vector_from_list(obj["angles_deg"], 3, 3)
+        sigmas_deg = vector_from_list(obj["sigmas_deg"], 3, 3)
         result = RigRelativeRotation(angles_deg, sigmas_deg)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -57,8 +57,8 @@ class RigRelativeTranslation(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "RigRelativeTranslation":
         assert isinstance(obj, dict)
-        sigmas_m = vector_from_list(obj.get("sigmas_m"), 3, 3)
-        values_m = vector_from_list(obj.get("values_m"), 3, 3)
+        sigmas_m = vector_from_list(obj["sigmas_m"], 3, 3)
+        values_m = vector_from_list(obj["values_m"], 3, 3)
         result = RigRelativeTranslation(sigmas_m, values_m)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -91,8 +91,8 @@ class InputRigRelatives(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "InputRigRelatives":
         assert isinstance(obj, dict)
-        rotation = RigRelativeRotation.from_dict(obj.get("rotation"))
-        translation = RigRelativeTranslation.from_dict(obj.get("translation"))
+        rotation = RigRelativeRotation.from_dict(obj["rotation"])
+        translation = RigRelativeTranslation.from_dict(obj["translation"])
         result = InputRigRelatives(rotation, translation)
         result._extract_unknown_properties_and_extensions(obj)
         return result

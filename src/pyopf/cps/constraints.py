@@ -51,11 +51,11 @@ class OrientationConstraint(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "OrientationConstraint":
         assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        id_from = from_str(obj.get("id_from"))
-        id_to = from_str(obj.get("id_to"))
-        sigma_deg = from_float(obj.get("sigma_deg"))
-        unit_vector = vector_from_list(obj.get("unit_vector"), 3, 3)
+        id = from_str(obj["id"])
+        id_from = from_str(obj["id_from"])
+        id_to = from_str(obj["id_to"])
+        sigma_deg = from_float(obj["sigma_deg"])
+        unit_vector = vector_from_list(obj["unit_vector"], 3, 3)
         result = OrientationConstraint(id, id_from, id_to, unit_vector, sigma_deg)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -101,11 +101,11 @@ class ScaleConstraint(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ScaleConstraint":
         assert isinstance(obj, dict)
-        distance = from_float(obj.get("distance"))
-        id = from_str(obj.get("id"))
-        id_from = from_str(obj.get("id_from"))
-        id_to = from_str(obj.get("id_to"))
-        sigma = from_float(obj.get("sigma"))
+        distance = from_float(obj["distance"])
+        id = from_str(obj["id"])
+        id_from = from_str(obj["id_from"])
+        id_to = from_str(obj["id_to"])
+        sigma = from_float(obj["sigma"])
         result = ScaleConstraint(id, id_from, id_to, distance, sigma)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -136,7 +136,6 @@ class Constraints(CoreItem):
         version: VersionInfo = FormatVersion.CONSTRAINTS,
     ) -> None:
         super(Constraints, self).__init__(format=format, version=version)
-
         assert self.format == CoreFormat.CONSTRAINTS
         self.orientation_constraints = orientation_constraints
         self.scale_constraints = scale_constraints
@@ -146,10 +145,10 @@ class Constraints(CoreItem):
         base = CoreItem.from_dict(obj)
 
         orientation_constraints = from_list(
-            OrientationConstraint.from_dict, obj.get("orientation_constraints")
+            OrientationConstraint.from_dict, obj["orientation_constraints"]
         )
         scale_constraints = from_list(
-            ScaleConstraint.from_dict, obj.get("scale_constraints")
+            ScaleConstraint.from_dict, obj["scale_constraints"]
         )
         result = Constraints(
             orientation_constraints, scale_constraints, base.format, base.version

@@ -24,8 +24,8 @@ class CalibratedControlPoint(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "CalibratedControlPoint":
         assert isinstance(obj, dict)
-        coordinates = vector_from_list(obj.get("coordinates"), 3, 3)
-        id = from_str(obj.get("id"))
+        coordinates = vector_from_list(obj["coordinates"], 3, 3)
+        id = from_str(obj["id"])
         result = CalibratedControlPoint(id, coordinates)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -60,7 +60,7 @@ class CalibratedControlPoints(CoreItem):
     @staticmethod
     def from_dict(obj: Any) -> "CalibratedControlPoints":
         base = CoreItem.from_dict(obj)
-        points = from_list(CalibratedControlPoint.from_dict, obj.get("points"))
+        points = from_list(CalibratedControlPoint.from_dict, obj["points"])
         result = CalibratedControlPoints(points, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

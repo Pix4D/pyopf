@@ -27,7 +27,7 @@ from pyopf.resolve import resolve
 from pyopf.uid64 import Uid64
 
 # Path to the example project file.
-project_path = "spec/examples/project.json"
+project_path = "spec/examples/project.opf"
 
 # We are going to search for the calibrated position of the camera with this ID
 camera_id = Uid64(hex = "0x57282923")
@@ -82,32 +82,6 @@ pcl.write(Path('out/out.gltf'))
 
 We provide a few tools as command line scripts to help manipulate OPF projects in different ways.
 
-#### Merging
-
-The main use case for merging projects is to be able to process smaller sections of a project independently.
-For the merging to succeed the sub projects must be in the same coordinate reference system. Note that the tool doesn't support merging the content of most OPF extensions, which will then be dropped in the merged project.
-Two objects are considered identical if they have the same ID even if they are in different projects. If this assumption is violated, the merging fails. For example, the same camera ID cannot be associated with two different image URIs.
-The only exception are the sensors, whose IDs are always regenerated and for which no attempt is made at finding common and equally calibrated sensors.
-
-The point clouds are merged based on their label.
-
-Only core project items support merging:
-* camera list
-* input cameras
-* projected input cameras
-* input control points
-* projected control points
-* calibration (calibrated cameras, calibrated control points, tracks)
-* point clouds
-* constraints
-
-All extensions are dropped.
-
-The merging tool can be called using
-
-`opf_merge project_1.opf project_2.opf project_3.opf output_directory`
-
-
 #### Undistorting
 
 A tool to undistort images is provided. The undistorted images will be stored in their original location, but in an `undistort` directory. Only images taken with a perspective camera, for which the sensor has been calibrated will be undistorted.
@@ -137,6 +111,21 @@ The cropping tool can be called using
 
 `opf_crop project_to_crop.opf output_directory`
 
+#### Convert to COLMAP model
+
+A tool to convert an OPF project to a COLMAP sparse model. COLMAP sparse models consist of three files `cameras.txt`, `images.txt`, and `points3D.txt`:
+* `cameras.txt` contains information about the sensors, such as intrinsic parameters and distortion.
+* `images.txt` contains information about the cameras, such as extrinsic parameters and the corresponding image filename.
+* `points3D.txt` contains information about the tracks, such as their position and color.
+
+The tool can also be used to copy the images to a new directory, by specifying the `--out-img-dir` parameter. If specified, the tree structure of where input images are stored will be copied to the output image directory. In other words, if all images are stored in the same directory, the folder specified by `--out-img-dir` will only contain the images. If images are stored in different folders/subfolders, the `--out-img-dir` folder will contain the same folders/subfolders starting from the first common folder.
+
+Only calibrated projects with only perspective cameras are supported. Remote files are not supported.
+
+The conversion can be done by calling
+
+`opf2colmap project.opf`
+
 #### Convert to NeRF
 
 This tool converts OPF projects to NeRF. NeRF consists of transforms file(s), which contain information about distortion, intrinsic and extrinsinc parameters of cameras. Usually it is split in `transforms_train.json` and `transforms_test.json` files, but can sometimes also have only the train one. The split can be controlled with the parameter `--train-frac`, for example `--train-frac 0.7` will randomly assign 70% of images for training, and the remaining 30% for testing. If this parameter is unspecified or set to 1.0, only the `transforms_train.json` will be generated. Sometimes an additional `transforms_val.json` is required. It is to evaluate from new points of view, but the generation of new point of views is not managed by this tool, so it can just be a copy of `transforms_test.json` renamed.
@@ -145,7 +134,7 @@ The tool can also convert input images to other image formats using `--out-img-f
 
 When `--out-img-dir` is used, the tree structure of where input images are stored will be copied to the output image directory. In other words, if all images are stored in the same directory, the folder specified by `--out-img-dir` will only contain the images. If images are stored in different folders/subfolders, the `--out-img-dir` folder will contain the same folders/subfolders starting from the first common folder.
 
-Only calibrated projects with only perspective cameras are supported. Remote files are not supported.
+Only calibrated projects with perspective cameras are supported.
 
 ##### Examples
 
@@ -156,6 +145,20 @@ Different NeRFs require different parameter settings, by default all values are 
 DirectVoxGo only works with PNG image files, and contrary to Instant-NeRF it doesn't flip cameras orientation with respect to OPF. Thus it can be used as:
 
 `opf2nerf project.opf --out-img-format png --out-img-dir ./images --no-camera-flip`
+
+#### Convert to LAS
+
+A tool converting an OPF project's point clouds to LAS. One output for each dense and sparse point cloud will be produced.
+It can be used as follows:
+
+`opf2las path_to/project.opf --out-dir your_output_dir`
+
+#### Convert to PLY
+
+A tool converting an OPF project's point clouds to PLY. One output for each dense and sparse point cloud will be produced.
+It can be used as follows:
+
+`opf2ply path_to/project.opf --out-dir your_output_dir`
 
 ## License and citation
 

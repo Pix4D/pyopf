@@ -1,19 +1,21 @@
 import json
+import os
 from pathlib import Path
 from typing import Any, Optional
-from urllib.parse import unquote, urljoin, urlparse
+from urllib.parse import ParseResult, unquote, urljoin, urlparse
 from urllib.request import url2pathname
 
 from ..formats import CoreFormat, format_from_str
 from ..pointcloud.pcl import GlTFPointCloud
 from ..project import ProjectResource
 from ..types import VersionInfo
-from ..versions import format_and_version_to_type
+from ..versions import Format, get_compatible_type
 
 
-def join_uris(uri: str, base_uri: Optional[str]) -> Path:
-    """Resolve a URI relative to an absolute base URI if the input URI
-    is a relative URI reference, otherwise return the URI unmodified.
+def join_uris(uri: str, base_uri: Optional[str]) -> ParseResult:
+    """Resolve a URI relative to an absolute base URI if the input URI is a relative URI
+    reference, otherwise return the URI unmodified.
+    The return value is wrapped as a urllib.parse.ParseResult.
     """
     if base_uri is not None:
         uri = urljoin(base_uri + "/", uri)
@@ -25,10 +27,14 @@ def join_uris(uri: str, base_uri: Optional[str]) -> Path:
             " referring to the localhost are supported"
         )
 
+    return url
+
+
+def url_to_path(url: ParseResult) -> Path:
     if url.scheme == "file" or url.scheme == "":
         return Path(url2pathname(url.path))
 
-    raise RuntimeError("Non-file URIs are not supported")
+    raise RuntimeError("A non-file URIs is not accepted")
 
 
 def _load_from_json(uri: Path) -> Any:
@@ -44,12 +50,9 @@ def _load_from_json(uri: Path) -> Any:
     except KeyError:
         raise RuntimeError("Input file is not a valid OPF JSON resource")
 
-    try:
-        cls = format_and_version_to_type[(format, version)]
-    except KeyError:
-        raise RuntimeError(
-            f"Unsupported resource format and version: {format}, {version}"
-        )
+    cls = get_compatible_type(format, version)
+    if cls is None:
+        raise UnsupportedVersion(format, version)
 
     try:
         object = cls.from_dict(d)
@@ -65,40 +68,46 @@ def _load_from_json(uri: Path) -> Any:
         raise RuntimeError(f"Error decoding JSON resource {format}, {version}") from e
 
 
-def _test_json_resource(
-    resource: str | ProjectResource, base_uri: str, _
-) -> tuple[bool, Optional[list[Any]]]:
-
-    if isinstance(resource, str):
-        uri = join_uris(resource, base_uri)
+def _ensure_uri(uri: str | os.PathLike) -> str:
+    path = Path(uri)  # This doesn't throw if given something like "file:///foo"
+    if path.is_absolute():
+        return path.as_uri()
     else:
-        uri = join_uris(resource.uri, base_uri)
+        return str(path)
 
-    if uri.suffix == ".json" or uri.suffix == ".opf":
-        return (True, [uri])
+
+def _test_json_resource(
+    resource: str | ProjectResource | os.PathLike, base_uri: str, _
+) -> tuple[bool, Optional[list[Any]]]:
+    if isinstance(resource, ProjectResource):
+        path = url_to_path(join_uris(resource.uri, base_uri))
+    else:
+        path = url_to_path(join_uris(_ensure_uri(resource), base_uri))
+
+    if path.suffix == ".json" or path.suffix == ".opf":
+        return (True, [path])
     return (False, None)
 
 
 def _test_gltf_model_resource(
-    resource: str | ProjectResource, base_uri: str, _
+    resource: str | ProjectResource | os.PathLike, base_uri: str, _
 ) -> tuple[bool, Optional[list[Any]]]:
-
-    if isinstance(resource, str):
-        uri = join_uris(resource, base_uri)
-    elif resource.format == CoreFormat.GLTF_MODEL:
-        uri = join_uris(resource.uri, base_uri)
+    if isinstance(resource, ProjectResource):
+        if resource.format == CoreFormat.GLTF_MODEL:
+            path = url_to_path(join_uris(resource.uri, base_uri))
+        else:
+            return (False, None)
     else:
-        return (False, None)
+        path = url_to_path(join_uris(_ensure_uri(resource), base_uri))
 
-    if uri.suffix == ".gltf":
-        return (True, [uri])
+    if path.suffix == ".gltf":
+        return (True, [path])
     return (False, None)
 
 
 def _test_gltf_binary_resource(
-    resource: str | ProjectResource, base_uri: str, _
+    resource: str | ProjectResource | os.PathLike, base_uri: str, _
 ) -> tuple[bool, Optional[list[Any]]]:
-
     if (
         isinstance(resource, ProjectResource)
         and resource.format == CoreFormat.GLTF_BUFFER
@@ -126,13 +135,21 @@ class UnsupportedResource(RuntimeError):
         self.uri = uri
 
 
+class UnsupportedVersion(RuntimeError):
+    def __init__(self, _format: Format, version: VersionInfo):
+        self._format = _format
+        self.version = version
+        self.message = f"Unsupported resource format and version: {_format}, {version}"
+
+
 def load(
-    resource: str | ProjectResource,
+    resource: str | ProjectResource | os.PathLike,
     base_uri: Optional[str] = None,
     additional_resources: Optional[list[ProjectResource]] = None,
 ) -> Any:
     """Loads a resource from a URI
-    :param uri: The URI of the resource to load
+    :param resource: a resource to be loaded. It must be a ProjectResource, a string with a URI or path, or
+        a os.PathLike object
     :param base_uri: Base URI to use to resolve relative URI references
     :param additional_resouces: Additional resources for resources that require multiple
         not referenced by the main resource file.

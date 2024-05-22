@@ -66,8 +66,8 @@ class StaticPixelRange(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "StaticPixelRange":
         assert isinstance(obj, dict)
-        max = from_float(obj.get("max"))
-        min = from_float(obj.get("min"))
+        max = from_float(obj["max"])
+        min = from_float(obj["min"])
         result = StaticPixelRange(min, max)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -103,7 +103,7 @@ class DynamicPixelRange(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "DynamicPixelRange":
         assert isinstance(obj, dict)
-        percentile = from_float(obj.get("percentile"))
+        percentile = from_float(obj["percentile"])
         result = DynamicPixelRange(percentile)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -166,17 +166,17 @@ class Camera(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Camera":
         assert isinstance(obj, dict)
-        id = Uid64(int=int(obj.get("id")))
+        id = Uid64(int=int(obj["id"]))
         image_orientation = from_union(
             [from_int, from_none], obj.get("image_orientation")
         )
-        model_source = ModelSource(obj.get("model_source"))
+        model_source = ModelSource(obj["model_source"])
         pixel_range = from_union(
             [StaticPixelRange.from_dict, DynamicPixelRange.from_dict],
-            obj.get("pixel_range"),
+            obj["pixel_range"],
         )
-        pixel_type = PixelType(obj.get("pixel_type"))
-        sensor_id = Uid64(int=int(obj.get("sensor_id")))
+        pixel_type = PixelType(obj["pixel_type"])
+        sensor_id = Uid64(int=int(obj["sensor_id"]))
         result = Camera(
             id,
             model_source,
@@ -230,10 +230,10 @@ class YprOrientation(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "YprOrientation":
         assert isinstance(obj, dict)
-        assert obj.get("type") == YprOrientation.type
+        assert obj["type"] == YprOrientation.type
 
-        angles_deg = vector_from_list(obj.get("angles_deg"), 3, 3)
-        sigmas_deg = vector_from_list(obj.get("sigmas_deg"), 3, 3)
+        angles_deg = vector_from_list(obj["angles_deg"], 3, 3)
+        sigmas_deg = vector_from_list(obj["sigmas_deg"], 3, 3)
         result = YprOrientation(angles_deg, sigmas_deg)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -276,11 +276,11 @@ class OpkOrientation(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "OpkOrientation":
         assert isinstance(obj, dict)
-        assert obj.get("type") == OpkOrientation.type
+        assert obj["type"] == OpkOrientation.type
 
-        angles_deg = vector_from_list(obj.get("angles_deg"), 3, 3)
-        sigmas_deg = vector_from_list(obj.get("sigmas_deg"), 3, 3)
-        crs = from_str(obj.get("crs"))
+        angles_deg = vector_from_list(obj["angles_deg"], 3, 3)
+        sigmas_deg = vector_from_list(obj["sigmas_deg"], 3, 3)
+        crs = from_str(obj["crs"])
 
         result = OpkOrientation(angles_deg, sigmas_deg, crs)
         result._extract_unknown_properties_and_extensions(obj)
@@ -349,21 +349,21 @@ class Capture(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Capture":
         assert isinstance(obj, dict)
-        cameras = from_list(Camera.from_dict, obj.get("cameras"))
+        cameras = from_list(Camera.from_dict, obj["cameras"])
         geolocation = from_union(
             [Geolocation.from_dict, from_none], obj.get("geolocation")
         )
         height_above_takeoff_m = from_union(
             [from_float, from_none], obj.get("height_above_takeoff_m")
         )
-        id = Uid64(int=int(obj.get("id")))
+        id = Uid64(int=obj["id"])
         orientation = from_union(
             [YprOrientation.from_dict, OpkOrientation.from_dict, from_none],
             obj.get("orientation"),
         )
-        reference_camera_id = Uid64(int=int(obj.get("reference_camera_id")))
-        rig_model_source = RigModelSource(obj.get("rig_model_source"))
-        time = dateutil.parser.isoparse(str(obj.get("time")))
+        reference_camera_id = Uid64(int=int(obj["reference_camera_id"]))
+        rig_model_source = RigModelSource(obj["rig_model_source"])
+        time = dateutil.parser.isoparse(str(obj["time"]))
         result = Capture(
             id,
             cameras,
@@ -420,7 +420,7 @@ class BandInformation(OpfObject):
     def from_dict(obj: Any) -> "BandInformation":
         assert isinstance(obj, dict)
         name = from_union([from_str, from_none], obj.get("name"))
-        weight = from_float(obj.get("weight"))
+        weight = from_float(obj["weight"])
         result = BandInformation(weight, name)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -483,23 +483,23 @@ class Sensor(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "Sensor":
         assert isinstance(obj, dict)
-        bands = from_list(BandInformation.from_dict, obj.get("bands"))
-        id = Uid64(int=int(obj.get("id")))
-        image_size_px = vector_from_list(obj.get("image_size_px"), 2, 2, dtype=int)
+        bands = from_list(BandInformation.from_dict, obj["bands"])
+        id = Uid64(int=int(obj["id"]))
+        image_size_px = vector_from_list(obj["image_size_px"], 2, 2, dtype=int)
         internals = from_union(
             [
                 SphericalInternals.from_dict,
                 PerspectiveInternals.from_dict,
                 FisheyeInternals.from_dict,
             ],
-            obj.get("internals"),
+            obj["internals"],
         )
-        name = from_str(obj.get("name"))
-        pixel_size_um = from_float(obj.get("pixel_size_um"))
+        name = from_str(obj["name"])
+        pixel_size_um = from_float(obj["pixel_size_um"])
         rig_relatives = from_union(
             [InputRigRelatives.from_dict, from_none], obj.get("rig_relatives")
         )
-        shutter_type = ShutterType(obj.get("shutter_type"))
+        shutter_type = ShutterType(obj["shutter_type"])
         result = Sensor(
             id,
             name,
@@ -544,11 +544,11 @@ class InputCameras(CoreItem):
         self,
         captures: List[Capture],
         sensors: List[Sensor],
-        format: CoreFormat = CoreFormat.INPUT_CAMERAS,
+        pformat: CoreFormat = CoreFormat.INPUT_CAMERAS,
         version: VersionInfo = FormatVersion.INPUT_CAMERAS,
     ) -> None:
-        super(InputCameras, self).__init__(format=format, version=version)
-
+        super(InputCameras, self).__init__(format=pformat, version=version)
+        assert self.format == CoreFormat.INPUT_CAMERAS
         self.captures = captures
         self.sensors = sensors
 
@@ -556,8 +556,8 @@ class InputCameras(CoreItem):
     def from_dict(obj: Any) -> "InputCameras":
         base = CoreItem.from_dict(obj)
 
-        captures = from_list(Capture.from_dict, obj.get("captures"))
-        sensors = from_list(Sensor.from_dict, obj.get("sensors"))
+        captures = from_list(Capture.from_dict, obj["captures"])
+        sensors = from_list(Sensor.from_dict, obj["sensors"])
         result = InputCameras(captures, sensors, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

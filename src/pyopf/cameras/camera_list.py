@@ -28,8 +28,8 @@ class CameraData(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "CameraData":
         assert isinstance(obj, dict)
-        id = Uid64(int=int(obj.get("id")))
-        uri = from_str(obj.get("uri"))
+        id = Uid64(int=int(obj["id"]))
+        uri = from_str(obj["uri"])
         result = CameraData(id, uri)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -50,18 +50,17 @@ class CameraList(CoreItem):
     def __init__(
         self,
         cameras: List[CameraData],
-        format: CoreFormat = CoreFormat.CAMERA_LIST,
+        pformat: CoreFormat = CoreFormat.CAMERA_LIST,
         version: VersionInfo = FormatVersion.CAMERA_LIST,
     ) -> None:
-        super(CameraList, self).__init__(format=format, version=version)
-
+        super(CameraList, self).__init__(format=pformat, version=version)
         assert self.format == CoreFormat.CAMERA_LIST
         self.cameras = cameras
 
     @staticmethod
     def from_dict(obj: Any) -> "CameraList":
         base = CoreItem.from_dict(obj)
-        cameras = from_list(CameraData.from_dict, obj.get("cameras"))
+        cameras = from_list(CameraData.from_dict, obj["cameras"])
         result = CameraList(cameras, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

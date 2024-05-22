@@ -37,8 +37,8 @@ class ProjectedGeolocation(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ProjectedGeolocation":
         assert isinstance(obj, dict)
-        position = vector_from_list(obj.get("position"), 3, 3)
-        sigmas = vector_from_list(obj.get("sigmas"), 3, 3)
+        position = vector_from_list(obj["position"], 3, 3)
+        sigmas = vector_from_list(obj["sigmas"], 3, 3)
         result = ProjectedGeolocation(position, sigmas)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -72,8 +72,8 @@ class ProjectedOrientation(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ProjectedOrientation":
         assert isinstance(obj, dict)
-        angles_deg = vector_from_list(obj.get("angles_deg"), 3, 3)
-        sigmas_deg = vector_from_list(obj.get("sigmas_deg"), 3, 3)
+        angles_deg = vector_from_list(obj["angles_deg"], 3, 3)
+        sigmas_deg = vector_from_list(obj["sigmas_deg"], 3, 3)
         result = ProjectedOrientation(angles_deg, sigmas_deg)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -110,7 +110,7 @@ class ProjectedCapture(OpfObject):
         geolocation = from_union(
             [ProjectedGeolocation.from_dict, from_none], obj.get("geolocation")
         )
-        id = Uid64(int=int(obj.get("id")))
+        id = Uid64(int=int(obj["id"]))
         orientation = from_union(
             [ProjectedOrientation.from_dict, from_none], obj.get("orientation")
         )
@@ -157,8 +157,8 @@ class ProjectedRigTranslation(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ProjectedRigTranslation":
         assert isinstance(obj, dict)
-        sigmas = vector_from_list(obj.get("sigmas"), 3, 3)
-        values = vector_from_list(obj.get("values"), 3, 3)
+        sigmas = vector_from_list(obj["sigmas"], 3, 3)
+        values = vector_from_list(obj["values"], 3, 3)
         result = ProjectedRigTranslation(sigmas, values)
         result._extract_unknown_properties_and_extensions(obj)
         return result
@@ -189,7 +189,7 @@ class ProjectedSensor(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "ProjectedSensor":
         assert isinstance(obj, dict)
-        id = Uid64(int=int(obj.get("id")))
+        id = Uid64(int=int(obj["id"]))
         rig_translation = from_union(
             [ProjectedRigTranslation.from_dict, from_none], obj.get("rig_translation")
         )
@@ -225,20 +225,19 @@ class ProjectedInputCameras(CoreItem):
         self,
         captures: List[ProjectedCapture],
         sensors: List[ProjectedSensor],
-        format: CoreFormat = CoreFormat.PROJECTED_INPUT_CAMERAS,
+        pformat: CoreFormat = CoreFormat.PROJECTED_INPUT_CAMERAS,
         version: VersionInfo = FormatVersion.PROJECTED_INPUT_CAMERAS,
     ) -> None:
-        super(ProjectedInputCameras, self).__init__(format=format, version=version)
-
+        super(ProjectedInputCameras, self).__init__(format=pformat, version=version)
+        assert self.format == CoreFormat.PROJECTED_INPUT_CAMERAS
         self.captures = captures
         self.sensors = sensors
 
     @staticmethod
     def from_dict(obj: Any) -> "ProjectedInputCameras":
         base = CoreItem.from_dict(obj)
-
-        captures = from_list(ProjectedCapture.from_dict, obj.get("captures"))
-        sensors = from_list(ProjectedSensor.from_dict, obj.get("sensors"))
+        captures = from_list(ProjectedCapture.from_dict, obj["captures"])
+        sensors = from_list(ProjectedSensor.from_dict, obj["sensors"])
         result = ProjectedInputCameras(captures, sensors, base.format, base.version)
         result._extract_unknown_properties_and_extensions(obj)
         return result

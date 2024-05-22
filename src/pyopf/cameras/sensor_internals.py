@@ -31,9 +31,9 @@ class SphericalInternals(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "SphericalInternals":
         assert isinstance(obj, dict)
-        assert obj.get("type") == SphericalInternals.type
+        assert obj["type"] == SphericalInternals.type
 
-        principal_point_px = vector_from_list(obj.get("principal_point_px"), 2, 2)
+        principal_point_px = vector_from_list(obj["principal_point_px"], 2, 2)
         result = SphericalInternals(principal_point_px)
         result._extract_unknown_properties_and_extensions(obj, ["type"])
         return result
@@ -75,12 +75,12 @@ class PerspectiveInternals(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "PerspectiveInternals":
         assert isinstance(obj, dict)
-        assert obj.get("type") == PerspectiveInternals.type
+        assert obj["type"] == PerspectiveInternals.type
 
-        focal_length_px = from_float(obj.get("focal_length_px"))
-        principal_point_px = vector_from_list(obj.get("principal_point_px"), 2, 2)
-        radial_distortion = vector_from_list(obj.get("radial_distortion"), 3, 3)
-        tangential_distortion = vector_from_list(obj.get("tangential_distortion"), 2, 2)
+        focal_length_px = from_float(obj["focal_length_px"])
+        principal_point_px = vector_from_list(obj["principal_point_px"], 2, 2)
+        radial_distortion = vector_from_list(obj["radial_distortion"], 3, 3)
+        tangential_distortion = vector_from_list(obj["tangential_distortion"], 2, 2)
 
         result = PerspectiveInternals(
             principal_point_px,
@@ -140,13 +140,13 @@ class FisheyeInternals(OpfObject):
     @staticmethod
     def from_dict(obj: Any) -> "FisheyeInternals":
         assert isinstance(obj, dict)
-        assert obj.get("type") == FisheyeInternals.type
+        assert obj["type"] == FisheyeInternals.type
 
-        principal_point_px = vector_from_list(obj.get("principal_point_px"), 2, 2)
-        affine = vector_from_list(obj.get("affine"), 4, 4)
-        is_p0_zero = from_bool(obj.get("is_p0_zero"))
-        is_symmetric_affine = from_bool(obj.get("is_symmetric_affine"))
-        polynomial = np.array(from_list(from_float, obj.get("polynomial")))
+        principal_point_px = vector_from_list(obj["principal_point_px"], 2, 2)
+        affine = vector_from_list(obj["affine"], 4, 4)
+        is_p0_zero = from_bool(obj["is_p0_zero"])
+        is_symmetric_affine = from_bool(obj["is_symmetric_affine"])
+        polynomial = np.array(from_list(from_float, obj["polynomial"]))
 
         result = FisheyeInternals(
             principal_point_px,

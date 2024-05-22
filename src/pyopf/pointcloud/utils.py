@@ -83,7 +83,7 @@ def _numpy_to_gl_shape(count: int) -> str:
 
 
 def merge_arrays(arrays: list[np.ndarray | np.memmap], output_file: Path) -> np.ndarray:
-    """Merge multiple 2D numpy arrays in a single memory mapped array, along the first dimension. The second dimension must be the same.
+    """Merge multiple 1D or 2D numpy arrays in a single memory mapped array, along the first dimension. The second dimension must be the same.
 
     :param arrays: The list of numpy arrays to merge.
     :param output_file: The path to the memory mapped file to write. If the file is present, it will be overwritten.
@@ -93,11 +93,19 @@ def merge_arrays(arrays: list[np.ndarray | np.memmap], output_file: Path) -> np.
     :raise ValueError: If any of the arrays is not bi-dimensional, if they do not have matching data types
                        or do not agree in the second dimension
     """
+    if len(arrays) == 0:
+        raise ValueError("The array list cannot be empty")
+
+    dims = len(arrays[0].shape)
+    sub_shape = arrays[0].shape[1:]
+
     for a in arrays:
-        if len(a.shape) != 2:
-            raise ValueError("Can only merge bi-dimensional arrays")
-        if a.shape[1] != arrays[0].shape[1]:
-            raise ValueError("Arrays do not have the same number of columns")
+        if len(a.shape) != dims:
+            raise ValueError("Can only merge arrays of the same number of dimensions")
+        if a.shape[1:] != sub_shape:
+            raise ValueError(
+                "Arrays do the same number of elements on all but the first dimension"
+            )
         if a.dtype != arrays[0].dtype:
             raise ValueError("Arrays do not have the same data types")
 
@@ -108,15 +116,24 @@ def merge_arrays(arrays: list[np.ndarray | np.memmap], output_file: Path) -> np.
         mode="w+",
         dtype=arrays[0].dtype,
         offset=0,
-        shape=(total_rows, arrays[0].shape[1]),
+        shape=(total_rows, *sub_shape),
     )
 
     written_so_far = 0
     for a in arrays:
-        newAccessor[written_so_far : written_so_far + a.shape[0], :] = a
+        newAccessor[written_so_far : written_so_far + a.shape[0], ...] = a
         written_so_far += a.shape[0]
 
     return newAccessor
+
+
+def apply_affine_transform(array: np.ndarray | np.memmap, matrix: np.ndarray) -> None:
+    """Applies in-place the affine transform represented by matrix to the points of array.
+    :raise ValueError: If array does not have the shape (,3) or if matrix does not have the shape (4,4)
+    """
+    upper_left_matrix = matrix[:3, :3]
+    translation = matrix[:3, 3]
+    array[:] = array @ upper_left_matrix.transpose() + translation
 
 
 class Buffer:
@@ -203,10 +220,12 @@ def add_accessor(
 
     buffer_id = buffers[filepath].buffer_id
 
+    dims = len(data.shape)
+
     gltf.accessors.append(
         pygltflib.Accessor(
             bufferView=buffer_view_id,
-            type=_numpy_to_gl_shape(data.shape[1]),
+            type=_numpy_to_gl_shape(data.shape[1] if dims > 1 else 1),
             count=data.shape[0],
             componentType=_numpy_to_gl_type(data.dtype),
             min=None,
