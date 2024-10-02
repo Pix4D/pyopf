@@ -5,14 +5,17 @@ For more information about what OPF is and its full specification, please refer 
 
 ### Installation
 
-The tool can be installed using `pip` with the following command:
+The library can be installed using `pip` with the following command:
 
 ```shell
 pip install pyopf
 ```
 
-This command installs the `pyopf` package and tools.
+The additional command line tool dependencies are available through a package extra, and can be installed like so:
 
+```shell
+pip install pyopf[tools]
+```
 
 ### Structure of the PyOPF repository
 
@@ -30,7 +33,7 @@ from pyopf.uid64 import Uid64
 project_path = "spec/examples/project.opf"
 
 # We are going to search for the calibrated position of the camera with this ID
-camera_id = Uid64(hex = "0x57282923")
+camera_id = Uid64(hex = "0x2D1A1DE")
 
 # Load the json data and resolve the project, i.e. load the project items as named attributes.
 project = load(project_path)
@@ -45,8 +48,11 @@ if project.calibration is None:
 calibrated_camera = [camera for camera in project.calibration.calibrated_cameras.cameras if camera.id == camera_id]
 
 # Print the pose of the camera.
-print("The camera {} is calibrated at:".format(camera_id), calibrated_camera[0].position)
-print("with orientation", calibrated_camera[0].orientation_deg)
+if calibrated_camera:
+    print("The camera {} is calibrated at:".format(camera_id), calibrated_camera[0].position)
+    print("with orientation", calibrated_camera[0].orientation_deg)
+else:
+    print("There is no camera  with id: {} in the project".format(camera_id))
 ```
 
 The custom attributes are stored per node in the `custom_attributes` dictionary. This dictionary might be `None` if
@@ -128,7 +134,7 @@ The conversion can be done by calling
 
 #### Convert to NeRF
 
-This tool converts OPF projects to NeRF. NeRF consists of transforms file(s), which contain information about distortion, intrinsic and extrinsinc parameters of cameras. Usually it is split in `transforms_train.json` and `transforms_test.json` files, but can sometimes also have only the train one. The split can be controlled with the parameter `--train-frac`, for example `--train-frac 0.7` will randomly assign 70% of images for training, and the remaining 30% for testing. If this parameter is unspecified or set to 1.0, only the `transforms_train.json` will be generated. Sometimes an additional `transforms_val.json` is required. It is to evaluate from new points of view, but the generation of new point of views is not managed by this tool, so it can just be a copy of `transforms_test.json` renamed.
+This tool converts OPF projects to NeRF. NeRF consists of transforms file(s), which contain information about distortion, intrinsic and extrinsic parameters of cameras. Usually it is split in `transforms_train.json` and `transforms_test.json` files, but can sometimes also have only the train one. The split can be controlled with the parameter `--train-frac`, for example `--train-frac 0.7` will randomly assign 70% of images for training, and the remaining 30% for testing. If this parameter is unspecified or set to 1.0, only the `transforms_train.json` will be generated. Sometimes an additional `transforms_val.json` is required. It is to evaluate from new points of view, but the generation of new point of views is not managed by this tool, so it can just be a copy of `transforms_test.json` renamed.
 
 The tool can also convert input images to other image formats using `--out-img-format`. An optional output directory can be given with `--out-img-dir`, otherwise the images are written to the same directory as the input ones. If `--out-img-dir` is used without `--out-img-format`, images will be copied. When copying or converting an image, the input directory layout is preserved.
 
@@ -138,13 +144,22 @@ Only calibrated projects with perspective cameras are supported.
 
 ##### Examples
 
-Different NeRFs require different parameter settings, by default all values are set to work with Instant-NeRF, so it can be used as:
+Different NeRFs require different parameter settings, here are some popular examples:
 
-`opf2nerf project.opf --output-extension`
+- **Instant-NeRF**:
+    By default all values are set to work with Instant-NeRF, so it can be used as:
 
-DirectVoxGo only works with PNG image files, and contrary to Instant-NeRF it doesn't flip cameras orientation with respect to OPF. Thus it can be used as:
+    `opf2nerf project.opf --output-extension`
 
-`opf2nerf project.opf --out-img-format png --out-img-dir ./images --no-camera-flip`
+- **Nerfstudio**:
+    Nerfstudio is another popular tool. The converter has a parameter to use the proper options:
+
+    `opf2nerf project.opf --out-dir out_dir/ --nerfstudio`
+
+- **DirectVoxGo**:
+    DirectVoxGo only works with PNG image files, and contrary to Instant-NeRF it doesn't flip cameras orientation with respect to OPF. Thus it can be used as:
+
+    `opf2nerf project.opf --out-img-format png --out-img-dir ./images --no-camera-flip`
 
 #### Convert to LAS
 
@@ -160,11 +175,21 @@ It can be used as follows:
 
 `opf2ply path_to/project.opf --out-dir your_output_dir`
 
+### Examples
+
+We provide also a few examples of command line scripts to illustrate and educate about various photogrammetry knowledge using the OPF projects.
+
+#### Compute reprojection error
+
+This script computes the reprojection error of input GCPs in calibrated cameras using the OPF project as an input.
+
+`python examples/compute_reprojection_error.py  --opf_path path_to/project.opf`
+
 ## License and citation
 
 If you use this work in your research or projects, we kindly request that you cite it as follows:
 
-The Open Photogrammetry Format Specification, Grégoire Krähenbühl, Klaus Schneider-Zapp, Bastien Dalla Piazza, Juan Hernando, Juan Palacios, Massimiliano Bellomo, Mohamed-Ghaïth Kaabi, Christoph Strecha, Pix4D, 2023, retrived from https://pix4d.github.io/opf-spec/
+The Open Photogrammetry Format Specification, Grégoire Krähenbühl, Klaus Schneider-Zapp, Bastien Dalla Piazza, Juan Hernando, Juan Palacios, Massimiliano Bellomo, Mohamed-Ghaïth Kaabi, Christoph Strecha, Pix4D, 2023, retrieved from https://pix4d.github.io/opf-spec/
 
 Copyright (c) 2023 Pix4D SA
 

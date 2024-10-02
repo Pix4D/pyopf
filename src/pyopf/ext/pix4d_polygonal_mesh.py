@@ -21,7 +21,7 @@ from ..util import (
 from ..versions import VersionInfo, format_and_version_to_type
 
 format = ExtensionFormat("application/ext-pix4d-polygonal-meshes+json")
-version = VersionInfo(1, 0, "draft1")
+version = VersionInfo(1, 0, "draft2")
 
 
 class VertexMark(OpfObject):
@@ -212,6 +212,8 @@ class PolygonalMesh(OpfObject):
     """ List of faces """
     triangulation: Optional[List[np.ndarray]]
     """ Array of vertex indices triplets defining a triangulation of the polygonal mesh """
+    face_triangle_offsets: Optional[List[IntType]]
+    """ Face triangle offsets. The i'th face triangle indices are given by `range(face_triangle_offsets[i], face_triangle_offsets[i + 1])` """
 
     def __init__(
         self,
@@ -219,12 +221,14 @@ class PolygonalMesh(OpfObject):
         edges: List[Edge],
         faces: List[Face],
         triangulation: Optional[List[np.ndarray]] = None,
+        face_triangle_offsets: Optional[List[IntType]] = None,
     ) -> None:
         super(PolygonalMesh, self).__init__()
         self.vertices = vertices
         self.edges = edges
         self.faces = faces
         self.triangulation = triangulation
+        self.face_triangle_offsets = face_triangle_offsets
 
     @staticmethod
     def from_dict(obj: Any) -> "PolygonalMesh":
@@ -239,8 +243,17 @@ class PolygonalMesh(OpfObject):
             ],
             obj.get("triangulation"),
         )
+        face_triangle_offsets = from_union(
+            [
+                lambda x: from_list(int, x),
+                from_none,
+            ],
+            obj.get("face_triangle_offsets"),
+        )
 
-        result = PolygonalMesh(vertices, edges, faces, triangulation)
+        result = PolygonalMesh(
+            vertices, edges, faces, triangulation, face_triangle_offsets
+        )
         result._extract_unknown_properties_and_extensions(obj)
         return result
 
@@ -253,6 +266,10 @@ class PolygonalMesh(OpfObject):
             result["triangulation"] = from_union(
                 [lambda x: from_list(lambda x: from_list(from_int, x), x), from_none],
                 self.triangulation,
+            )
+        if self.face_triangle_offsets is not None:
+            result["face_triangle_offsets"] = from_union(
+                [lambda x: from_list(int, x)], self.face_triangle_offsets
             )
         return result
 

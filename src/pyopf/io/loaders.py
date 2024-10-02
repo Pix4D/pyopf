@@ -116,11 +116,25 @@ def _test_gltf_binary_resource(
     return (False, None)
 
 
+def _test_features_matches_resource(
+    resource: str | ProjectResource | os.PathLike, base_uri: str, _
+) -> tuple[bool, Optional[list[Any]]]:
+    if isinstance(resource, ProjectResource) and (
+        resource.format == CoreFormat.FEATURES
+        or resource.format == CoreFormat.MATCHES
+        or resource.format == CoreFormat.ORIGINAL_MATCHES
+    ):
+        return (True, [])
+    return (False, None)
+
+
 loaders = [
     (_test_json_resource, _load_from_json),
     (_test_gltf_model_resource, GlTFPointCloud.open),
     # This is used just for skipping glTF binary buffers in the project resolver
     (_test_gltf_binary_resource, lambda: None),
+    # This is used just for skipping feature and matches binary buffers in the project resolver
+    (_test_features_matches_resource, lambda: None),
 ]
 """
 A resource loader is a tuple of a test function and a loading function.
@@ -140,6 +154,9 @@ class UnsupportedVersion(RuntimeError):
         self._format = _format
         self.version = version
         self.message = f"Unsupported resource format and version: {_format}, {version}"
+
+    def __str__(self):
+        return self.message
 
 
 def load(

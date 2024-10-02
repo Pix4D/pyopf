@@ -122,7 +122,7 @@ class MarkWithSegments(OpfObject):
 class IntersectionTiePoint(OpfObject):
 
     id: str
-    """A unique string that identifies the ITP amongst all control points."""
+    """A unique string that identifies the ITP."""
     marks: List[MarkWithSegments]
     """List of marks with line segments in the images that correspond to the projections of a 3D
     point.

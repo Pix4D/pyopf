@@ -19,7 +19,8 @@ from ..types import CoreFormat
 
 def to_uri_reference(path, base_path) -> str:
     if base_path:
-        return quote(str(path.relative_to(base_path)).replace(os.sep, "/"))
+        rel_path = os.path.relpath(path, base_path)
+        return quote(str(rel_path).replace(os.sep, "/"))
     else:
         return path.as_uri()
 
