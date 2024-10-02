@@ -31,8 +31,11 @@ def apply_laplacian_kernel(array: np.ndarray) -> np.ndarray:
     """Apply laplacian kernel on an image (with valid convolution) as described by openCV. Reference:
     https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#gad78703e4c8fe703d479c1860d76429e6
     """
+    # due to new NEP 50 conversion rule, convert the array to avoid overflow
+    # currently, apply_laplacian_kernel is only used for sharpness computation
+    # which uses a grayscale image, so we can safely convert to int16.
     new_array = (
-        -4 * array
+        -4 * array.astype(np.int16)
         + np.roll(array, 1, axis=0)
         + np.roll(array, -1, axis=0)
         + np.roll(array, 1, axis=1)
@@ -51,6 +54,8 @@ def sensor_dict(
 ) -> dict:
     """Describe sensor intrinsics in NeRF format."""
     transforms = {}
+    if user_config["nerfstudio"]:
+        transforms["camera_model"] = "OPENCV"
     input_sensor = [
         input_sensor
         for input_sensor in project.input_cameras.sensors
@@ -334,9 +339,10 @@ def save_transforms(
 ) -> None:
     """Save the transforms files as created by the converter."""
     os.makedirs(user_config["out_dir"], exist_ok=True)
+    TRAIN_FILENAME = f"transforms{'' if user_config['nerfstudio'] else '_train'}.json"
     json.dump(
         transforms_train,
-        open(os.path.join(user_config["out_dir"], "transforms_train.json"), "w"),
+        open(os.path.join(user_config["out_dir"], TRAIN_FILENAME), "w"),
         indent=2,
     )
     if user_config["train_fraction"] != 1.0:
@@ -460,6 +466,13 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--nerfstudio",
+        type=bool,
+        action=argparse.BooleanOptionalAction,
+        help="If set, the output format will be ready for use in nerfstudio.",
+    )
+
+    parser.add_argument(
         "--aabb-scale",
         type=int,
         default=16,
@@ -540,8 +553,33 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def validate_args(args: argparse.Namespace) -> None:
+    """
+    Check for arguments validity:
+    - Override arguments if needed
+    - Raise exception / print warning if values are invalid
+    """
+    if args.nerfstudio:
+        had_override = False
+        for param_name, override_value in {
+            "out_img_dir": os.path.join(args.out_dir, "images"),
+            "output_extension": True,
+            "abs_img_path": False,
+        }.items():
+            current_value = vars(args).get(param_name)
+            if current_value is not None and current_value != override_value:
+                if not had_override:
+                    print(
+                        "Warning: The following parameters will be overridden for nerfstudio compatibility:"
+                    )
+                    had_override = True
+                print(f"{' ' * 2}- {param_name}: {current_value} -> {override_value}")
+            vars(args)[param_name] = override_value
+
+
 def main():
     args = parse_args()
+    validate_args(args)
     user_config = {
         "train_fraction": args.train_frac,
         "aabb_scale": args.aabb_scale,
@@ -552,6 +590,7 @@ def main():
         "abs_img_path": args.abs_img_path,
         "out_img_format": args.out_img_format,
         "out_img_dir": args.out_img_dir,
+        "nerfstudio": args.nerfstudio,
     }
 
     opf_project = args.opf_project

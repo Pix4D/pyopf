@@ -1,5 +1,6 @@
 import argparse
 import os
+import warnings
 from pathlib import Path
 from typing import Optional, cast
 
@@ -139,12 +140,14 @@ def _filter_array(
 
     kept_entries = np.sum(flags)
 
+    shape = (kept_entries, array.shape[1]) if array.ndim == 2 else (kept_entries,)
+
     filtered = np.memmap(
         output_file,
         mode="w+",
         dtype=array.dtype,
         offset=0,
-        shape=(kept_entries, array.shape[1]),
+        shape=shape,
     )
 
     filtered[:] = array[flags]
@@ -217,9 +220,14 @@ def _filter_node(
         node.color = _filter_array(node.color, flags, output_gltf_dir / "colors.bin")
     if node.custom_attributes is not None:
         for name, attribute in node.custom_attributes.items():
-            attribute = _filter_array(
-                attribute, flags, output_gltf_dir / (name + ".bin")
-            )
+            try:
+                attribute = _filter_array(
+                    attribute, flags, output_gltf_dir / (name + ".bin")
+                )
+            except Exception as e:
+                warnings.warn(
+                    f"Warning: can't export attribute file '{name}' because: {str(e)} "
+                )
 
     if node.matches:
         _filter_matches(node.matches, flags, output_gltf_dir)
@@ -404,7 +412,7 @@ def crop(
 
     for pointcloud_id, pointcloud in pointclouds:
         output_dir = output_path / pointcloud_id
-        os.mkdir(output_dir)
+        os.makedirs(output_dir, exist_ok=True)
         filter_pointcloud(pointcloud, roi, output_dir)
 
     _filter_cameras_without_points(project)

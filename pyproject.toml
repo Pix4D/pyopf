@@ -6,7 +6,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pyopf"
-version = "1.2.0"
+version = "1.3.0"
 description = "Python library for I/O and manipulation of projects under the Open Photogrammetry Format (OPF)"
 authors = [
     "Pix4D",
@@ -34,15 +34,10 @@ keywords = [
 [tool.poetry.dependencies]
 python = ">=3.10"
 numpy = "*"
+pillow = "~10"
 pygltflib = "*"
-shapely = "*"
 python-dateutil = "*"
 simplejson = "*"
-pillow = "~10"
-tqdm = "^4.65.0"
-laspy = "2.4.1"
-pyproj = "3.6.0"
-plyfile = "0.9"
 
 [tool.poetry.scripts]
 opf_crop = "opf_tools.crop.cropper:main"

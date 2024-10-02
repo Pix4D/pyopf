@@ -23,6 +23,9 @@ class CoreFormat(str, Enum):
     PROJECTED_INPUT_CAMERAS = "application/opf-projected-input-cameras+json"
     PROJECT = "application/opf-project+json"
     SCENE_REFERENCE_FRAME = "application/opf-scene-reference-frame+json"
+    FEATURES = "application/ext-pix4d-features+bin"
+    MATCHES = "application/ext-pix4d-matches+bin"
+    ORIGINAL_MATCHES = "application/ext-pix4d-original-matches+bin"
 
 
 class NamedFormat(str):
