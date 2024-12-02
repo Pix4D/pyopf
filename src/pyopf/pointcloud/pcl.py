@@ -499,7 +499,7 @@ class GlTFPointCloud:
 
     _format: CoreFormat
     _version: VersionInfo
-    nodes: list[Node] = []
+    nodes: list[Node]
     metadata: Optional["Metadata"]  # noqa: F821 # type: ignore
 
     mode_type = Literal[
@@ -560,6 +560,7 @@ class GlTFPointCloud:
         return accessors
 
     def __init__(self):
+        self.nodes = []
         self._format = CoreFormat.GLTF_MODEL
         self._version = FormatVersion.GLTF_OPF_ASSET
 

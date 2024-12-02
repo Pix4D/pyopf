@@ -185,10 +185,28 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "opf_path", type=str, help="[REQUIRED] The path to your project.opf file."
+        "--opf_path", type=str, help="[REQUIRED] The path to your project.opf file."
     )
 
-    return parser.parse_args()
+    parser.add_argument(
+        "--point_type",
+        type=str,
+        choices=["mtps", "gcps"],
+        help="[REQUIRED] Wheter to use MTPs or GCPs",
+    )
+
+    parser.add_argument(
+        "--use_input_3d_coordinates",
+        action="store_true",
+        help="Use input 3d coordinates instead of calibrated ones. Only applicable if point_type is set to gcps",
+    )
+
+    args = parser.parse_args()
+
+    if args.use_input_3d_coordinates and args.point_type == "mtps":
+        raise ValueError("MTPs have no input 3d coordinates")
+
+    return args
 
 
 def main():
@@ -198,25 +216,37 @@ def main():
 
     project = pyopf.resolve.resolve(pyopf.io.load(args.opf_path))
 
-    input_gcps = project.input_control_points.gcps
-    projected_gcps = project.projected_control_points.projected_gcps
+    if args.point_type == "mtps":
+        input_points = project.input_control_points.mtps
+    else:
+        input_points = project.input_control_points.gcps
 
-    # alternatively, we can also use the optimized coordinates for the GCPs
-    # projected_gcps = project.calibration.calibrated_control_points.points
+        if args.use_input_3d_coordinates:
+            projected_input_points = project.projected_control_points.projected_gcps
+
+    calibrated_control_points = project.calibration.calibrated_control_points.points
 
     calibrated_cameras = project.calibration.calibrated_cameras.cameras
     sensors = project.calibration.calibrated_cameras.sensors
 
-    # == for all gcps, compute the reprojection error of all marks and the mean ==
+    # == for all points, compute the reprojection error of all marks and the mean ==
 
-    for gcp in input_gcps:
+    for point in input_points:
 
-        # get the corresponding projected gcp
-        scene_gcp = find_object_with_given_id(projected_gcps, gcp.id)
+        if args.use_input_3d_coordinates:
+            scene_point = find_object_with_given_id(projected_input_points, point.id)
+        else:
+            scene_point = find_object_with_given_id(calibrated_control_points, point.id)
+
+            if scene_point is None:
+                print(point.id, "not calibrated")
+                continue
+
+        scene_point_3d_coordinates = scene_point.coordinates
 
         all_reprojection_errors = []
 
-        for mark in gcp.marks:
+        for mark in point.marks:
 
             # find the corresponding calibrated camera
             calibrated_camera = find_object_with_given_id(
@@ -230,22 +260,25 @@ def main():
             internal_parameters = calibrated_sensor.internals
 
             # project the 3d point on the image
-            gcp_on_image = project_point(
-                calibrated_camera, internal_parameters, scene_gcp.coordinates
+            point_on_image = project_point(
+                calibrated_camera, internal_parameters, scene_point_3d_coordinates
             )
 
             # compute reprojection error
-            reprojection_error = gcp_on_image - mark.position_px
+            reprojection_error = point_on_image - mark.position_px
 
             all_reprojection_errors.append(reprojection_error)
 
-        # compute the mean of the norm of the reprojection errors
-        all_reprojection_errors = np.array(all_reprojection_errors)
-        mean_reprojection_error = np.mean(
-            np.apply_along_axis(np.linalg.norm, 1, all_reprojection_errors)
-        )
+        if len(all_reprojection_errors) > 0:
+            # compute the mean of the norm of the reprojection errors
+            all_reprojection_errors = np.array(all_reprojection_errors)
+            mean_reprojection_error = np.mean(
+                np.apply_along_axis(np.linalg.norm, 1, all_reprojection_errors)
+            )
 
-        print(gcp.id, mean_reprojection_error)
+            print(point.id, mean_reprojection_error)
+        else:
+            print(point.id, "no marks")
 
 
 if __name__ == "__main__":

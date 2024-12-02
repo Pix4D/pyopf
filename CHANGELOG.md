@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.3.1
+
+### Fixed
+
+- `height` in ROI extension was fixed to `thickness` to comply with OPF specification
+- Fix bug causing GlTFPointCloud instances to inherit previous instance nodes
+
 ## 1.3.0
 
 ### Added

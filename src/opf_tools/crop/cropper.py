@@ -47,7 +47,7 @@ class RoiPolygons:
     roi: Pix4DRegionOfInterest
     outer_boundary: Polygon
     inner_boundaries: list[Polygon]
-    height: Optional[float]
+    thickness: Optional[float]
 
     def __init__(self, roi: Pix4DRegionOfInterest, matrix: Optional[np.ndarray] = None):
         """Construct a RoiPolygons wrapper for a region of interest.
@@ -73,7 +73,7 @@ class RoiPolygons:
                 _make_polygon(boundary, roi) for boundary in roi.plane.inner_boundaries
             ]
 
-        self.height = roi.height
+        self.thickness = roi.thickness
         self.matrix = matrix
 
         self.roi = roi
@@ -94,14 +94,14 @@ class RoiPolygons:
         """Check if a point is within the elevation bounds of the region of interest.
         The point must be in the same system of coordinates as the boudnaries.
         """
-        if self.height is None:
+        if self.thickness is None:
             return True
 
         elevation_difference = point[2] - self.roi.plane.vertices3d[0][2]
 
         elevation_along_normal = elevation_difference * self.roi.plane.normal_vector[2]
 
-        return elevation_along_normal > 0 and elevation_along_normal < self.height
+        return elevation_along_normal > 0 and elevation_along_normal < self.thickness
 
     def is_inside(self, point: np.ndarray) -> bool:
         """Check if a point is inside the ROI.
