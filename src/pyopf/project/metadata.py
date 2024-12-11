@@ -4,7 +4,13 @@ from uuid import UUID, uuid4
 
 from ..VersionInfo import VersionInfo
 from ..versions import FormatVersion
-from .project import Generator, ProjectItem, ProjectItemType, ProjectSource
+from .project import (
+    Generator,
+    ProjectItem,
+    ProjectItemType,
+    ProjectResource,
+    ProjectSource,
+)
 
 
 class Sources:
@@ -20,6 +26,7 @@ class Metadata:
     name: Optional[str] = None
     labels: Optional[list[str]] = None
     sources: Union[list[ProjectSource], Sources] = field(default_factory=list)
+    resources: list[ProjectResource] = field(default_factory=list)
     """The object sources. This may contain an object with named attributes
     pointing to the sources or a list of ProjectSources"""
 
@@ -31,6 +38,7 @@ class Metadata:
             type=item.type,
             labels=item.labels,
             sources=item.sources,
+            resources=item.resources,
         )
 
     def raw_sources(self) -> list[ProjectSource]:

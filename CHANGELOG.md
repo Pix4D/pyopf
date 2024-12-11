@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+### Changed
+### Fixed
+### Removed
+
+## 1.4.0
+
+### Added
+
+- Added the functionality for `opf2nerf` to output the `avg_pos` and `scale` when using with `--nerfstudio`.
+- Added the original resources to the metadata of resolved project items.
+
+### Fixed
+
+- Version check for compatibility.
+
 ## 1.3.1
 
 ### Fixed

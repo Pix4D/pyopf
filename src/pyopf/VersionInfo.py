@@ -82,10 +82,14 @@ class VersionInfo:
         return cls(major, minor, prerelease)
 
     def compatible_with(self, other):
-        if self.major != other.major or self.prerelease != other.prerelease:
+        # self is the version of the file we read
+        # other is the version of the reader code
+        if self.major != other.major:
             return False
         if self.major > 0:
-            if self.prerelease is not None and self.minor != other.minor:
+            if other.prerelease is not None and (
+                self.minor != other.minor or self.prerelease != other.prerelease
+            ):
                 return False
         elif self.major == 0 and self.minor != other.minor:
             return False

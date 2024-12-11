@@ -174,14 +174,9 @@ def rescale_position(
     transforms_train: dict,
     transforms_test: dict,
     avg_pos: np.ndarray,
-    max_pos: np.ndarray,
-    min_pos: np.ndarray,
-    cam_aabb_size: float,
+    scale: float,
 ) -> None:
     """Rescale and center so all cameras fit in a cube bounding box of edge length cam_aabb_size centered in [0, 0, 0]."""
-    scale = np.max(max_pos - min_pos)
-    scale /= cam_aabb_size
-
     for transforms in [transforms_train, transforms_test]:
         for frame in transforms["frames"]:
             transform_matrix = np.asarray(frame["transform_matrix"])
@@ -250,13 +245,20 @@ def generate_nerf_transforms(
         pbar.set_postfix_str(os.path.basename(image_path) + "->" + assigned_msg)
 
     avg_pos /= len(project.calibration.calibrated_cameras.cameras)
+    scale = np.max(max_pos - min_pos) / user_config["camera_aabb_size"]
+
+    if user_config["nerfstudio"]:
+        # if the conversion is under nerfstudio format, the average positions
+        # of the cameras & scale of the scene are saved in the transforms.json
+        # file to transform back to the original coordinates.
+        transforms_train["avg_pos"] = avg_pos.tolist()
+        transforms_train["scale"] = scale
+
     rescale_position(
         transforms_train,
         transforms_test,
         avg_pos,
-        max_pos,
-        min_pos,
-        user_config["camera_aabb_size"],
+        scale,
     )
 
     return transforms_train, transforms_test
