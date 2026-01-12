@@ -34,7 +34,7 @@ keywords = [
 [tool.poetry.dependencies]
 python = ">=3.10"
 numpy = "*"
-pillow = "~10"
+pillow = ">=10"
 pygltflib = "*"
 python-dateutil = "*"
 simplejson = "*"
