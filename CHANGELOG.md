@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 1.4.1
+
+### Changed
+
+- Relax Pillow version restriction to allow newer versions fixing important vulnerabilities.
+
 ## 1.4.0
 
 ### Added
