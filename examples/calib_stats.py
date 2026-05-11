@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from pyopf.io import load
+from pyopf.io import load, save
 from pyopf.resolve import resolve
 
 camera_matches_count = np.zeros((3, 3), dtype=int)
@@ -42,9 +42,9 @@ def print_tracks(tracks):
 
 def main():
     print("start")
-    output_dir = 'C:/images/out/'
+    output = 'C:/images/out/project.opf'
     input = 'C:/images/gatewing_opf/project.opf'
-    print(output_dir, input)
+    print(output, input)
     
     project = load(input)
     project = resolve(project)
@@ -73,6 +73,8 @@ def main():
             point_texts.append(f"{camera_matches_count[i,j]:4.0f}")
         print(point_texts)       
         
+        
+    save(project,output)
     
     
     
